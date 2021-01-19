@@ -1,0 +1,5 @@
+dist/
+node_modules/
+storybook-static/
+build-storybook.log
+yarn.lock

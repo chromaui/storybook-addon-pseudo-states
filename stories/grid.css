@@ -1,0 +1,9 @@
+.story-grid {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: -0.5rem;
+}
+
+.story-grid > * {
+  margin: 0.5rem;
+}

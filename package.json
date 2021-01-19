@@ -1,0 +1,61 @@
+{
+  "name": "storybook-addon-pseudo-states",
+  "version": "1.0.0",
+  "description": "CSS pseudo states for Storybook",
+  "keywords": [
+    "storybook",
+    "addons",
+    "pseudo states"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chromaui/storybook-addon-pseudo-states"
+  },
+  "author": "Chromatic",
+  "license": "MIT",
+  "main": "dist/preset.js",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "*.js"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "babel ./src --out-dir ./dist",
+    "prepublish": "npm run clean && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "storybook": "start-storybook -p 6006",
+    "start": "concurrently \"yarn storybook --no-manager-cache --quiet\" \"yarn build --watch\"",
+    "build-storybook": "build-storybook",
+    "release": "npm run build && auto shipit --base-branch=main"
+  },
+  "dependencies": {
+    "@storybook/addons": "^6.0.0",
+    "@storybook/components": "^6.1.10"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-react": "^7.12.5",
+    "@storybook/react": "^6.1.10",
+    "auto": "^10.3.0",
+    "babel-loader": "^8.1.0",
+    "concurrently": "^5.3.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "rimraf": "^3.0.2"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  }
+}
