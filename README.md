@@ -17,3 +17,21 @@ This addon attempts to "force" your components' pseudo states. It rewrites all d
 ### Limitations
 
 Because this addon rewrites your stylesheets rather than toggle the actual browser behavior like DevTools does, it won't render any of the default user agent (browser) styles. Unfortunately there's no JavaScript API to toggle real pseudo states without using a browser extension.
+
+## Getting Started
+
+This addon requires Storybook 6.1 or later. Install the latest with `npx sb upgrade --prerelease`
+
+First, install the addon:
+
+```sh
+npm i -D storybook-addon-pseudo-states
+```
+
+Then, add `"storybook-addon-pseudo-states"` to the `addons` array in your [`.storybook/main.js`](https://storybook.js.org/docs/react/configure/overview#configure-your-storybook-project):
+
+```js
+module.exports = {
+  addons: ["storybook-addon-pseudo-states"],
+}
+```
