@@ -16,7 +16,7 @@ const LinkIcon = styled(Icons)(({ active }) => ({
 
 const options = Object.keys(PSEUDO_STATES).sort()
 
-export const PseudoStateSelector = () => {
+export const PseudoStateTool = () => {
   const [{ pseudo }, updateGlobals] = useGlobals()
   const hasSelection = useMemo(() => !!pseudo && Object.values(pseudo).includes(true), [pseudo])
   const getValue = useCallback((option) => (pseudo ? pseudo[option] : false), [pseudo])
