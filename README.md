@@ -1,4 +1,4 @@
-<img src="https://user-images.githubusercontent.com/321738/105190912-cb2cbb00-5b36-11eb-95a1-517ed898ec86.gif" width="160" height="160">
+<img src="https://user-images.githubusercontent.com/321738/105222904-659ef580-5b5b-11eb-9460-35292793c214.gif" width="80" height="80">
 
 # Storybook Pseudo States
 
