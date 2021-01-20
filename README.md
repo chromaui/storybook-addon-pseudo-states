@@ -6,6 +6,10 @@ Toggle CSS pseudo states for your components in Storybook.
 
 <img src="https://user-images.githubusercontent.com/321738/105100903-51e98580-5aae-11eb-82bf-2b625c5a88a3.gif" width="560" alt="" />
 
+<a href="https://www.npmjs.com/package/storybook-addon-pseudo-states">
+  <img src="https://badgen.net/npm/v/storybook-addon-pseudo-states" alt="Published on npm">
+</a>
+
 ## Introduction
 
 This addon attempts to "force" your components' pseudo states. It rewrites all document stylesheets to add a class name selector to any rules that target a pseudo-class (`:hover`, `:focus`, etc.). The tool then allows you to toggle these class names on the story container (`#root`). Additionally, you can set the `pseudo` property on your story `args` to set a default value for each pseudo class. This makes it possible to test such states with [Chromatic](https://www.chromatic.com/).
