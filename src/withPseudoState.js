@@ -8,8 +8,8 @@ const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
 const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
-function initPseudoStyles() {
-  for (const sheet of document.styleSheets) {
+function initPseudoStyles(shadowRoot) {
+  for (const sheet of (shadowRoot || document).styleSheets) {
     try {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
@@ -21,11 +21,14 @@ function initPseudoStyles() {
               .flatMap((selector) => {
                 if (selector.includes(`.pseudo-`)) return []
                 const states = []
-                const plainSelector = selector.replace(matchAll, (match, state) => {
+                const plainSelector = selector.replace(matchAll, (_, state) => {
                   states.push(`.pseudo-${state}`)
                   return ""
                 })
-                return [selector, `${states.join("")} ${plainSelector}`]
+                const stateSelector = shadowRoot
+                  ? `:host-context(${states.join("")}) ${plainSelector}`
+                  : `${states.join("")} ${plainSelector}`
+                return [selector, stateSelector]
               })
               .join(", ")
           )
@@ -46,7 +49,16 @@ function initPseudoStyles() {
   }
 }
 
-addons.getChannel().on(STORY_RENDERED, initPseudoStyles)
+// Reinitialize CSS enhancements every time the story changes
+addons.getChannel().on(STORY_RENDERED, () => initPseudoStyles())
+
+// Monkeypatch the attachShadow method so we can handle pseudo styles inside shadow DOM
+Element.prototype._attachShadow = Element.prototype.attachShadow
+Element.prototype.attachShadow = function attachShadow(init) {
+  const shadowRoot = this._attachShadow({ ...init, mode: "open" })
+  setTimeout(() => initPseudoStyles(shadowRoot))
+  return shadowRoot
+}
 
 export const withPseudoState = (StoryFn) => {
   const [{ pseudo: args }] = useArgs()

@@ -63,7 +63,7 @@
   },
   "storybook": {
     "displayName": "Pseudo States",
-    "unsupportedFrameworks": ["react-native", "web-components"],
+    "unsupportedFrameworks": ["react-native"],
     "icon": "https://user-images.githubusercontent.com/321738/105224055-f6c29c00-5b5c-11eb-83c9-ba28a7fbadf2.gif"
   }
 }
