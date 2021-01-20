@@ -1,17 +1,18 @@
 {
   "name": "storybook-addon-pseudo-states",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "CSS pseudo states for Storybook",
   "keywords": [
-    "storybook",
-    "addons",
-    "pseudo states"
+    "storybook-addons",
+    "pseudo states",
+    "style",
+    "test"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/chromaui/storybook-addon-pseudo-states"
   },
-  "author": "Chromatic",
+  "author": "ghengeveld",
   "license": "MIT",
   "main": "dist/preset.js",
   "files": [
@@ -57,5 +58,12 @@
     "react-dom": {
       "optional": true
     }
+  },
+  "storybook": {
+    "displayName": "Pseudo States",
+    "unsupportedFrameworks": [
+      "react-native"
+    ],
+    "icon": "https://user-images.githubusercontent.com/321738/105190912-cb2cbb00-5b36-11eb-95a1-517ed898ec86.gif"
   }
 }
