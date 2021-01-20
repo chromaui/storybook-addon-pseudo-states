@@ -1,3 +1,5 @@
+<img src="https://user-images.githubusercontent.com/321738/105190912-cb2cbb00-5b36-11eb-95a1-517ed898ec86.gif" width="160" height="160">
+
 # Storybook Pseudo States
 
 Toggle CSS pseudo states for your components in Storybook.
