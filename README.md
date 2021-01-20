@@ -35,3 +35,14 @@ module.exports = {
   addons: ["storybook-addon-pseudo-states"],
 }
 ```
+
+### Setting default story states
+
+You can have your stories automatically use a specific set of pseudo states, by setting the `pseudo` property on `args`:
+
+```js
+export const Hover = () => <Button>Label</Button>
+Hover.args = { pseudo: { hover: true } }
+```
+
+This is what enables snapshot testing your pseudo states in [Chromatic](https://www.chromatic.com/).
