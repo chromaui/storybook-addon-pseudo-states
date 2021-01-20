@@ -53,7 +53,9 @@ export const withPseudoState = (StoryFn) => {
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
   // Sync args to globals, used by the toolbar
-  useEffect(() => updateGlobals({ pseudo: args }), [args])
+  useEffect(() => {
+    if (args !== globals) updateGlobals({ pseudo: args })
+  }, [args])
 
   // Convert selected pseudo states to CSS classnames
   const pseudoStateClassNames = useMemo(() => {
