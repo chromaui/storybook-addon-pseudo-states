@@ -9,6 +9,9 @@ Toggle CSS pseudo states for your components in Storybook.
 <a href="https://www.npmjs.com/package/storybook-addon-pseudo-states">
   <img src="https://badgen.net/npm/v/storybook-addon-pseudo-states" alt="Published on npm">
 </a>
+<a href="https://www.chromatic.com/builds?appId=6008aabce49a640021858011">
+  <img src="https://badgen.net/badge/tested%20with/chromatic/fc521f" alt="Tested with Chromatic">
+</a>
 
 ## Introduction
 
