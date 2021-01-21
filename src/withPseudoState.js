@@ -52,13 +52,15 @@ function initPseudoStyles(shadowRoot) {
 // Reinitialize CSS enhancements every time the story changes
 addons.getChannel().on(STORY_RENDERED, () => initPseudoStyles())
 
-// Monkeypatch the attachShadow method so we can handle pseudo styles inside shadow DOM
-Element.prototype._attachShadow = Element.prototype.attachShadow
-Element.prototype.attachShadow = function attachShadow(init) {
-  if (!this._attachShadow) return // IE doesn't support shadow DOM
-  const shadowRoot = this._attachShadow({ ...init, mode: "open" })
-  setTimeout(() => initPseudoStyles(shadowRoot))
-  return shadowRoot
+// IE doesn't support shadow DOM
+if (Element.prototype.attachShadow) {
+  // Monkeypatch the attachShadow method so we can handle pseudo styles inside shadow DOM
+  Element.prototype._attachShadow = Element.prototype.attachShadow
+  Element.prototype.attachShadow = function attachShadow(init) {
+    const shadowRoot = this._attachShadow({ ...init, mode: "open" })
+    setTimeout(() => initPseudoStyles(shadowRoot))
+    return shadowRoot
+  }
 }
 
 export const withPseudoState = (StoryFn) => {

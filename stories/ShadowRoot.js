@@ -4,6 +4,7 @@ export const ShadowRoot = () => {
   const ref = React.useRef()
 
   React.useEffect(() => {
+    if (!ref.current.attachShadow) return
     ref.current.attachShadow({ mode: "closed" })
     ref.current.shadowRoot.innerHTML = `
       <style>
