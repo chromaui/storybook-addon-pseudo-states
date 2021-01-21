@@ -9,6 +9,35 @@ export default {
 
 const Template = () => <ShadowRoot />
 
+export const All = () => (
+  <div className="story-grid">
+    <div>
+      <ShadowRoot label="Normal" />
+    </div>
+    <div className="pseudo-hover">
+      <ShadowRoot label="Hover" />
+    </div>
+    <div className="pseudo-focus">
+      <ShadowRoot label="Focus" />
+    </div>
+    <div className="pseudo-active">
+      <ShadowRoot label="Active" />
+    </div>
+    <div className="pseudo-hover pseudo-focus">
+      <ShadowRoot label="Hover Focus" />
+    </div>
+    <div className="pseudo-hover pseudo-active">
+      <ShadowRoot label="Hover Active" />
+    </div>
+    <div className="pseudo-focus pseudo-active">
+      <ShadowRoot label="Focus Active" />
+    </div>
+    <div className="pseudo-hover pseudo-focus pseudo-active">
+      <ShadowRoot label="Hover Focus Active" />
+    </div>
+  </div>
+)
+
 export const Default = Template.bind()
 
 export const Hover = Template.bind()

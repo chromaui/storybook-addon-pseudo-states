@@ -1,6 +1,6 @@
 import React from "react"
 
-export const ShadowRoot = () => {
+export const ShadowRoot = ({ label = "Hello from shadow DOM" }) => {
   const ref = React.useRef()
 
   React.useEffect(() => {
@@ -32,7 +32,7 @@ export const ShadowRoot = () => {
           background-color: firebrick;
         }
       </style>
-      <button>This is shadow DOM content</button>
+      <button>${label}</button>
     `
   }, [])
 
