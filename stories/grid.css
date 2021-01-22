@@ -1,9 +1,42 @@
 .story-grid {
-  display: inline-flex;
-  flex-wrap: wrap;
-  margin: -0.5rem;
+  display: inline-grid;
+  grid-template-areas:
+    "normal normal normal"
+    "hover focus active"
+    "hover-focus hover-active focus-active"
+    "hover-focus-active hover-focus-active hover-focus-active";
+  gap: 1rem;
 }
 
-.story-grid > * {
-  margin: 0.5rem;
+.story-grid > div {
+  grid-area: normal;
+  justify-self: center;
+}
+.story-grid > .pseudo-hover {
+  grid-area: hover;
+  justify-self: right;
+}
+.story-grid > .pseudo-focus {
+  grid-area: focus;
+  justify-self: center;
+}
+.story-grid > .pseudo-active {
+  grid-area: active;
+  justify-self: left;
+}
+.story-grid > .pseudo-hover.pseudo-focus {
+  grid-area: hover-focus;
+  justify-self: right;
+}
+.story-grid > .pseudo-hover.pseudo-active {
+  grid-area: hover-active;
+  justify-self: center;
+}
+.story-grid > .pseudo-focus.pseudo-active {
+  grid-area: focus-active;
+  justify-self: left;
+}
+.story-grid > .pseudo-hover.pseudo-focus.pseudo-active {
+  grid-area: hover-focus-active;
+  justify-self: center;
 }
