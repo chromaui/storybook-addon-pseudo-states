@@ -10,7 +10,6 @@ const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
 // Drops any existing pseudo state classnames that carried over from a previously viewed story
 // before adding the new classnames. We do this the old-fashioned way, for IE compatibility.
 const applyClasses = (element, classnames) => {
-  console.log("applyClasses", element, classnames)
   element.className = element.className
     .split(" ")
     .filter((classname) => classname && classname.indexOf("pseudo-") !== 0)
@@ -61,6 +60,14 @@ export const withPseudoState = (StoryFn) => {
   return StoryFn()
 }
 
+const warnings = new Set()
+const warnOnce = (message) => {
+  if (warnings.has(message)) return
+  // eslint-disable-next-line no-console
+  console.warn(message)
+  warnings.add(message)
+}
+
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 function rewriteStyleSheets(shadowRoot) {
   for (const sheet of (shadowRoot || document).styleSheets) {
@@ -94,8 +101,7 @@ function rewriteStyleSheets(shadowRoot) {
       }
     } catch (e) {
       if (e.toString().includes("cssRules")) {
-        // eslint-disable-next-line no-console
-        console.warn("Can't access cssRules, most likely due to CORS restrictions", sheet.href)
+        warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
       } else {
         // eslint-disable-next-line no-console
         console.error(e, sheet.href)
