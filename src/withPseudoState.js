@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import { addons, useArgs, useEffect, useGlobals } from "@storybook/addons"
 import { STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 

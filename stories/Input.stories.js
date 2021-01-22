@@ -8,7 +8,7 @@ export default {
   component: Input,
 }
 
-const Template = (args) => <Input {...args}></Input>
+const Template = (args) => <Input {...args} />
 
 export const All = () => (
   <div className="story-grid pseudo">
