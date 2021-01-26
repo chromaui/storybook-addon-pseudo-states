@@ -1,17 +1,15 @@
-<img src="https://user-images.githubusercontent.com/321738/105224055-f6c29c00-5b5c-11eb-83c9-ba28a7fbadf2.gif" width="80" height="80">
+<img src="https://user-images.githubusercontent.com/321738/105224055-f6c29c00-5b5c-11eb-83c9-ba28a7fbadf2.gif" width="80" height="80" alt="">
 
 # Storybook Pseudo States
 
 Toggle CSS pseudo states for your components in Storybook.
 
-<img src="https://user-images.githubusercontent.com/321738/105100903-51e98580-5aae-11eb-82bf-2b625c5a88a3.gif" width="560" alt="" />
+[![Published on npm](https://badgen.net/npm/v/storybook-addon-pseudo-states)](https://www.npmjs.com/package/storybook-addon-pseudo-states)
+[![Tested with Chromatic](https://badgen.net/badge/tested%20with/chromatic/fc521f)](https://www.chromatic.com/builds?appId=6008aabce49a640021858011)
 
-<a href="https://www.npmjs.com/package/storybook-addon-pseudo-states">
-  <img src="https://badgen.net/npm/v/storybook-addon-pseudo-states" alt="Published on npm">
-</a>
-<a href="https://www.chromatic.com/builds?appId=6008aabce49a640021858011">
-  <img src="https://badgen.net/badge/tested%20with/chromatic/fc521f" alt="Tested with Chromatic">
-</a>
+<p>
+  <img src="https://user-images.githubusercontent.com/321738/105100903-51e98580-5aae-11eb-82bf-2b625c5a88a3.gif" width="560" height="315" alt="" />
+</p>
 
 ## Introduction
 
