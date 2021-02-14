@@ -8,7 +8,7 @@ Toggle CSS pseudo states for your components in Storybook.
 [![Tested with Chromatic](https://badgen.net/badge/tested%20with/chromatic/fc521f)](https://www.chromatic.com/builds?appId=6008aabce49a640021858011)
 
 <p>
-  <img src="https://user-images.githubusercontent.com/321738/105100903-51e98580-5aae-11eb-82bf-2b625c5a88a3.gif" width="560" height="315" alt="" />
+  <img src="https://user-images.githubusercontent.com/321738/105100903-51e98580-5aae-11eb-82bf-2b625c5a88a3.gif" width="560" alt="" />
 </p>
 
 ## Introduction
