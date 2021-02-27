@@ -71,11 +71,35 @@ const warnOnce = (message) => {
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 function rewriteStyleSheets(shadowRoot) {
+  const root = shadowRoot || document.getElementById("root")
+
+  const tagSelectors = new Set()
+  const idSelectors = new Set()
+  const classSelectors = new Set()
+  const attrSelectors = new Set()
+  for (const element of root.querySelectorAll("*")) {
+    tagSelectors.add(`(?<![.#])\\b${element.tagName}\\b`)
+    if (element.id) idSelectors.add(`#${element.id}`)
+    for (const classname of element.className.split(/\s+/)) {
+      if (classname) classSelectors.add(`\\.${classname}`)
+    }
+    for (const { localName } of element.attributes) {
+      if (localName) attrSelectors.add(`\\[${localName}[~$^*|]?(=[^\\]]+)?\\]`)
+    }
+  }
+  const matchSelectors = [
+    ...Array.from(tagSelectors).map((re) => new RegExp(re, "i")),
+    ...Array.from(idSelectors).map((re) => new RegExp(re)),
+    ...Array.from(classSelectors).map((re) => new RegExp(re)),
+    ...Array.from(attrSelectors).map((re) => new RegExp(re, "i")),
+  ]
+
   for (const sheet of (shadowRoot || document).styleSheets) {
     try {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
         if (matchOne.test(selectorText)) {
+          if (!matchSelectors.some((matcher) => matcher.test(selectorText))) continue
           const newRule = cssText.replace(
             selectorText,
             selectorText
