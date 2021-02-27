@@ -81,7 +81,7 @@ function rewriteStyleSheets(shadowRoot) {
     tagSelectors.add(`(?<![.#])\\b${element.tagName}\\b`)
     if (element.id) idSelectors.add(`#${element.id}`)
     for (const className of element.className.split(/\s+/)) {
-      if (className) classSelectors.add(`\\.${className.replace(/:/, "\\:")}`)
+      if (className) classSelectors.add(`\\.${className.replace(/:/, "\\\\:")}`)
     }
     for (const { localName } of element.attributes) {
       if (localName) attrSelectors.add(`\\[${localName}[~$^*|]?(=[^\\]]+)?\\]`)
