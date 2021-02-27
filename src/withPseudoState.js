@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import { addons, useArgs, useEffect, useGlobals } from "@storybook/addons"
+import { addons, useEffect, useGlobals, useParameter } from "@storybook/addons"
 import { STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
 import { PSEUDO_STATES } from "./constants"
@@ -38,13 +38,13 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn) => {
-  const [{ pseudo: args }] = useArgs()
+  const parameter = useParameter("pseudo")
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
-  // Sync args to globals, used by the toolbar
+  // Sync parameter to globals, used by the toolbar
   useEffect(() => {
-    if (args !== globals) updateGlobals({ pseudo: args })
-  }, [args])
+    if (parameter !== globals) updateGlobals({ pseudo: parameter })
+  }, [parameter])
 
   // Convert selected states to classnames and apply them to the story root element.
   // Then update each shadow host to redetermine its own pseudo classnames.

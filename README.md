@@ -13,7 +13,7 @@ Toggle CSS pseudo states for your components in Storybook.
 
 ## Introduction
 
-This addon attempts to "force" your components' pseudo states. It rewrites all document stylesheets to add a class name selector to any rules that target a pseudo-class (`:hover`, `:focus`, etc.). The tool then allows you to toggle these class names on the story container (`#root`). Additionally, you can set the `pseudo` property on your story `args` to set a default value for each pseudo class. This makes it possible to test such states with [Chromatic](https://www.chromatic.com/).
+This addon attempts to "force" your components' pseudo states. It rewrites all document stylesheets to add a class name selector to any rules that target a pseudo-class (`:hover`, `:focus`, etc.). The tool then allows you to toggle these class names on the story container (`#root`). Additionally, you can set the `pseudo` property on your story `parameters` to set a default value for each pseudo class. This makes it possible to test such states with [Chromatic](https://www.chromatic.com/).
 
 ### Limitations
 
@@ -39,11 +39,11 @@ module.exports = {
 
 ### Setting default story states
 
-You can have your stories automatically use a specific set of pseudo states, by setting the `pseudo` property on `args`:
+You can have your stories automatically use a specific set of pseudo states, by setting the `pseudo` property on `parameters`:
 
 ```js
 export const Hover = () => <Button>Label</Button>
-Hover.args = { pseudo: { hover: true } }
+Hover.parameters = { pseudo: { hover: true } }
 ```
 
 This is what enables snapshot testing your pseudo states in [Chromatic](https://www.chromatic.com/).
