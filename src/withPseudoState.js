@@ -80,8 +80,8 @@ function rewriteStyleSheets(shadowRoot) {
   for (const element of root.querySelectorAll("*")) {
     tagSelectors.add(`(?<![.#])\\b${element.tagName}\\b`)
     if (element.id) idSelectors.add(`#${element.id}`)
-    for (const classname of element.className.split(/\s+/)) {
-      if (classname) classSelectors.add(`\\.${classname}`)
+    for (const className of element.className.split(/\s+/)) {
+      if (className) classSelectors.add(`\\.${className.replace(/:/, "\\:")}`)
     }
     for (const { localName } of element.attributes) {
       if (localName) attrSelectors.add(`\\[${localName}[~$^*|]?(=[^\\]]+)?\\]`)
