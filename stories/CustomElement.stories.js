@@ -5,7 +5,7 @@ export default {
   component: CustomElement,
 }
 
-const Template = () => <ShadowRoot />
+const Template = () => <custom-element>Custom element</custom-element>
 
 export const All = () => (
   <div className="story-grid">
