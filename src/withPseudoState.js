@@ -87,11 +87,13 @@ function rewriteStyleSheets(shadowRoot) {
                   states.push(`.pseudo-${state}`)
                   return ""
                 })
-                let stateSelector;
+                let stateSelector
                 if (shadowRoot && states.length) {
-                  stateSelector = `:host(${states.join('')}) ${selectorText.startsWith(':host') ? '' : plainSelector}`;
+                  stateSelector = `:host(${states.join("")}) ${
+                    selector.includes(":host") ? "" : plainSelector
+                  }`
                 } else {
-                  stateSelector = `${states.join("")} ${plainSelector}`;
+                  stateSelector = `${states.join("")} ${plainSelector}`
                 }
                 return [selector, stateSelector]
               })
