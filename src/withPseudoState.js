@@ -87,9 +87,16 @@ function rewriteStyleSheets(shadowRoot) {
                   states.push(`.pseudo-${state}`)
                   return ""
                 })
-                const stateSelector = shadowRoot
-                  ? `:host(${states.join("")}) ${plainSelector}`
-                  : `${states.join("")} ${plainSelector}`
+                let stateSelector;
+                if (shadowRoot && states.length) {
+                  if (selectorText.startsWith(':host')) {
+                    stateSelector = `:host(${states.join('')})`;
+                  } else {
+                    stateSelector = `:host(${states.join("")}) ${plainSelector}`;
+                  }
+                } else {
+                  stateSelector = `${states.join("")} ${plainSelector}`;
+                }
                 return [selector, stateSelector]
               })
               .join(", ")
