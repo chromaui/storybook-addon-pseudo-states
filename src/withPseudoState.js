@@ -89,11 +89,7 @@ function rewriteStyleSheets(shadowRoot) {
                 })
                 let stateSelector;
                 if (shadowRoot && states.length) {
-                  if (selectorText.startsWith(':host')) {
-                    stateSelector = `:host(${states.join('')})`;
-                  } else {
-                    stateSelector = `:host(${states.join("")}) ${plainSelector}`;
-                  }
+                  stateSelector = `:host(${states.join('')}) ${selectorText.startsWith(':host') ? '' : plainSelector}`;
                 } else {
                   stateSelector = `${states.join("")} ${plainSelector}`;
                 }
