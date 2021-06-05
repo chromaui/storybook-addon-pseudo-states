@@ -1,12 +1,12 @@
 export class CustomElement extends HTMLElement {
   constructor() {
-    super();
+    super()
 
-    const shadow = this.attachShadow({ mode: 'open' });
+    const shadow = this.attachShadow({ mode: "open" })
 
-    const slot = document.createElement('slot');
+    const slot = document.createElement("slot")
 
-    const style = document.createElement('style');
+    const style = document.createElement("style")
     style.textContent = `
       :host {
         font-family: "Nunito Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -31,10 +31,10 @@ export class CustomElement extends HTMLElement {
       :host(:active) {
         background-color: firebrick;
       }
-    `;
+    `
 
-    shadow.append(style, slot);
+    shadow.append(style, slot)
   }
 }
 
-customElements.define('custom-element', CustomElement);
+customElements.define("custom-element", CustomElement)
