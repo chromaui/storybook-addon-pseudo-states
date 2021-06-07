@@ -71,7 +71,17 @@ const warnOnce = (message) => {
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 function rewriteStyleSheets(shadowRoot) {
-  for (const sheet of (shadowRoot || document).styleSheets) {
+  const styleSheets = shadowRoot
+    ? shadowRoot.adoptedStyleSheets || shadowRoot.styleSheets
+    : document.styleSheets
+
+  for (const sheet of styleSheets) {
+    if (sheet._pseudoStatesRewritten) {
+      continue
+    } else {
+      sheet._pseudoStatesRewritten = true
+    }
+
     try {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
