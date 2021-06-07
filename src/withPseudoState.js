@@ -94,16 +94,17 @@ function rewriteStyleSheets(shadowRoot) {
                 if (selector.includes(`.pseudo-`)) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
-                  states.push(`.pseudo-${state}`)
+                  states.push(state)
                   return ""
                 })
                 let stateSelector
                 if (shadowRoot && states.length) {
-                  stateSelector = `:host(${states.join("")}) ${
-                    selector.includes(":host") ? "" : plainSelector
-                  }`
+                  stateSelector = selector
+                  states.forEach((state) => {
+                    stateSelector = stateSelector.replaceAll(`:${state}`, `.pseudo-${state}`)
+                  })
                 } else {
-                  stateSelector = `${states.join("")} ${plainSelector}`
+                  stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
                 }
                 return [selector, stateSelector]
               })
