@@ -3,12 +3,12 @@ import { CustomElement } from "./CustomElement"
 export default {
   title: "Example/CustomElement",
   component: CustomElement,
-  parameters: {
-    chromatic: { disableSnapshot: true },
-  },
 }
 
-const Template = () => <custom-element>Custom element</custom-element>
+const Template = () => {
+  if (window.document.documentMode) return <span>unsupported</span> // IE
+  return <custom-element>Custom element</custom-element>
+}
 
 export const All = () => (
   <div className="story-grid">
