@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import { addons, useEffect, useGlobals, useParameter } from "@storybook/addons"
+import { addons, useEffect, useGlobals } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
 import { PSEUDO_STATES } from "./constants"
@@ -38,8 +38,8 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
-  const isDocs = viewMode === 'docs';
-  const { pseudo: parameter } = parameters;
+  const isDocs = viewMode === "docs"
+  const { pseudo: parameter } = parameters
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
@@ -51,7 +51,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
   // Convert selected states to classnames and apply them to the story root element.
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
-    const apply = element => {
+    const apply = (element) => {
       applyClasses(
         element,
         Object.entries(parameter || {})
@@ -63,9 +63,9 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
 
     if (isDocs) {
       // Wait for the docs page to render so we can select the story element 😑
-      setTimeout(() => apply(document.getElementById(`story--${id}`)), 0);
+      setTimeout(() => apply(document.getElementById(`story--${id}`)), 0)
     } else {
-      apply(document.getElementById("root"));
+      apply(document.getElementById("root"))
     }
   }, [parameter])
 
@@ -82,7 +82,16 @@ const warnOnce = (message) => {
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 function rewriteStyleSheets(shadowRoot) {
-  for (const sheet of (shadowRoot || document).styleSheets) {
+  let styleSheets = shadowRoot ? shadowRoot.styleSheets : document.styleSheets
+  if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
+
+  for (const sheet of styleSheets) {
+    if (sheet._pseudoStatesRewritten) {
+      continue
+    } else {
+      sheet._pseudoStatesRewritten = true
+    }
+
     try {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
@@ -95,12 +104,22 @@ function rewriteStyleSheets(shadowRoot) {
                 if (selector.includes(`.pseudo-`)) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
-                  states.push(`.pseudo-${state}`)
+                  states.push(state)
                   return ""
                 })
-                const stateSelector = shadowRoot
-                  ? `:host(${states.join("")}) ${plainSelector}`
-                  : `${states.join("")} ${plainSelector}`
+                let stateSelector
+                if (selector.startsWith(":host(")) {
+                  stateSelector = states.reduce(
+                    (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
+                    selector
+                  )
+                } else if (shadowRoot) {
+                  stateSelector = `:host(${states
+                    .map((s) => `.pseudo-${s}`)
+                    .join("")}) ${plainSelector}`
+                } else {
+                  stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
+                }
                 return [selector, stateSelector]
               })
               .join(", ")
