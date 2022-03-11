@@ -72,7 +72,7 @@ const warnOnce = (message) => {
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 function rewriteStyleSheets(shadowRoot) {
   const styleSheets = shadowRoot
-    ? shadowRoot.adoptedStyleSheets || shadowRoot.styleSheets
+    ? [...shadowRoot.styleSheets, ...shadowRoot.adoptedStyleSheets]
     : document.styleSheets
 
   for (const sheet of styleSheets) {
@@ -98,11 +98,15 @@ function rewriteStyleSheets(shadowRoot) {
                   return ""
                 })
                 let stateSelector
-                if (shadowRoot && states.length) {
-                  stateSelector = selector
-                  states.forEach((state) => {
-                    stateSelector = stateSelector.replaceAll(`:${state}`, `.pseudo-${state}`)
-                  })
+                if (selector.startsWith(":host(")) {
+                  stateSelector = states.reduce(
+                    (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
+                    selector
+                  )
+                } else if (shadowRoot) {
+                  stateSelector = `:host(${states
+                    .map((s) => `.pseudo-${s}`)
+                    .join("")}) ${plainSelector}`
                 } else {
                   stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
                 }
