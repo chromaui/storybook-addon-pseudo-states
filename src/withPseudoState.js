@@ -38,15 +38,14 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
-  const isDocs = viewMode === "docs"
   const { pseudo: parameter } = parameters
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
   useEffect(() => {
-    if (parameter !== globals && !isDocs) updateGlobals({ pseudo: parameter })
-  }, [parameter, isDocs])
+    if (parameter !== globals && viewMode === "story") updateGlobals({ pseudo: parameter })
+  }, [parameter, viewMode])
 
   // Convert selected states to classnames and apply them to the story root element.
   // Then update each shadow host to redetermine its own pseudo classnames.
@@ -61,7 +60,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
       shadowHosts.forEach(updateShadowHost)
     }
 
-    if (isDocs) {
+    if (viewMode === "docs") {
       // Wait for the docs page to render so we can select the story element 😑
       setTimeout(() => apply(document.getElementById(`story--${id}`)), 0)
     } else {
