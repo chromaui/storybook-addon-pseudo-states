@@ -3,6 +3,9 @@ import { CustomElement } from "./CustomElement"
 export default {
   title: "Example/CustomElement",
   component: CustomElement,
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 }
 
 const Template = () => <custom-element>Custom element</custom-element>
