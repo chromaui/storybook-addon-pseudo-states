@@ -18,6 +18,14 @@ const applyClasses = (element, classnames) => {
     .join(" ")
 }
 
+const applyParameter = (element, parameter) =>
+  applyClasses(
+    element,
+    Object.entries(parameter || {})
+      .filter(([_, value]) => value)
+      .map(([key]) => `pseudo-${PSEUDO_STATES[key]}`)
+  )
+
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost) => {
@@ -50,23 +58,12 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
   // Convert selected states to classnames and apply them to the story root element.
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
-    const apply = (element) => {
-      applyClasses(
-        element,
-        Object.entries(parameter || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => `pseudo-${PSEUDO_STATES[key]}`)
-      )
+    const timeout = setTimeout(() => {
+      applyParameter(document.getElementById(viewMode === "docs" ? `story--${id}` : `root`))
       shadowHosts.forEach(updateShadowHost)
-    }
-
-    if (viewMode === "docs") {
-      // Wait for the docs page to render so we can select the story element 😑
-      setTimeout(() => apply(document.getElementById(`story--${id}`)), 0)
-    } else {
-      apply(document.getElementById("root"))
-    }
-  }, [parameter])
+    }, 0)
+    return () => clearTimeout(timeout)
+  }, [parameter, viewMode])
 
   return StoryFn()
 }
