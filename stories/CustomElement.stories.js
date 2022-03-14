@@ -3,42 +3,41 @@ import { CustomElement } from "./CustomElement"
 export default {
   title: "Example/CustomElement",
   component: CustomElement,
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 }
 
-const isIE = !!window.document.documentMode
-const IE = () => <span>unsupported</span>
-const Template = isIE ? IE : () => <custom-element>Custom element</custom-element>
+const Template = () => <custom-element>Custom element</custom-element>
 
-export const All = isIE
-  ? IE
-  : () => (
-      <div className="story-grid">
-        <div>
-          <custom-element>Normal</custom-element>
-        </div>
-        <div className="pseudo-hover">
-          <custom-element>Hover</custom-element>
-        </div>
-        <div className="pseudo-focus">
-          <custom-element>Focus</custom-element>
-        </div>
-        <div className="pseudo-active">
-          <custom-element>Active</custom-element>
-        </div>
-        <div className="pseudo-hover pseudo-focus">
-          <custom-element>Hover Focus</custom-element>
-        </div>
-        <div className="pseudo-hover pseudo-active">
-          <custom-element>Hover Active</custom-element>
-        </div>
-        <div className="pseudo-focus pseudo-active">
-          <custom-element>Focus Active</custom-element>
-        </div>
-        <div className="pseudo-hover pseudo-focus pseudo-active">
-          <custom-element>Hover Focus Active</custom-element>
-        </div>
-      </div>
-    )
+export const All = () => (
+  <div className="story-grid">
+    <div>
+      <custom-element>Normal</custom-element>
+    </div>
+    <div className="pseudo-hover">
+      <custom-element>Hover</custom-element>
+    </div>
+    <div className="pseudo-focus">
+      <custom-element>Focus</custom-element>
+    </div>
+    <div className="pseudo-active">
+      <custom-element>Active</custom-element>
+    </div>
+    <div className="pseudo-hover pseudo-focus">
+      <custom-element>Hover Focus</custom-element>
+    </div>
+    <div className="pseudo-hover pseudo-active">
+      <custom-element>Hover Active</custom-element>
+    </div>
+    <div className="pseudo-focus pseudo-active">
+      <custom-element>Focus Active</custom-element>
+    </div>
+    <div className="pseudo-hover pseudo-focus pseudo-active">
+      <custom-element>Hover Focus Active</custom-element>
+    </div>
+  </div>
+)
 
 export const Default = Template.bind()
 

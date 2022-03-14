@@ -44,6 +44,4 @@ export class CustomElement extends HTMLElement {
   }
 }
 
-if (window.customElements) {
-  window.customElements.define("custom-element", CustomElement)
-}
+window.customElements.define("custom-element", CustomElement)
