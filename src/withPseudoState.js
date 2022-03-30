@@ -3,6 +3,7 @@ import { addons, useEffect, useGlobals } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
 import { PSEUDO_STATES } from "./constants"
+import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
 const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
@@ -93,10 +94,10 @@ function rewriteStyleSheets(shadowRoot) {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
         if (matchOne.test(selectorText)) {
+          const selectors = splitSelectors(selectorText)
           const newRule = cssText.replace(
             selectorText,
-            selectorText
-              .split(", ")
+            selectors
               .flatMap((selector) => {
                 if (selector.includes(`.pseudo-`)) return []
                 const states = []
