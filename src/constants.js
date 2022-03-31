@@ -13,3 +13,5 @@ export const PSEUDO_STATES = {
   link: "link",
   target: "target",
 }
+
+export const RE_WRITE_STYLESHEET = "rewriteStyleSheet"

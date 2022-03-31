@@ -2,7 +2,7 @@
 import { addons, useEffect, useGlobals } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
-import { PSEUDO_STATES } from "./constants"
+import { PSEUDO_STATES, RE_WRITE_STYLESHEET } from "./constants"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
 const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
@@ -26,6 +26,27 @@ const applyParameter = (element, parameter) =>
       .map(([key]) => `pseudo-${PSEUDO_STATES[key]}`)
   )
 
+const handleApplyParameter = (rootElement, parameter = {}) => {
+  Object.entries(parameter).forEach(([state, selector]) => {
+    if (!!PSEUDO_STATES[state]) {
+      // handle pseudo state keys only 
+      if (typeof selector === "boolean") {
+        // default API - applying pseudo class to root element.
+        applyParameter(rootElement, { [state]: selector })
+      } else if (typeof selector === "string") {
+        // explicit selectors API - applying pseudo class to a specific element
+        const elements = document.querySelectorAll(selector)
+        elements.forEach((element) => applyParameter(element, { [state]: selector }))
+      } else if (Array.isArray(selector)) {
+        // explicit selectors API - we have an array (of strings) recursively handle each one
+        selector.forEach((singleSelector) =>
+          handleApplyParameter(rootElement, { [state]: singleSelector })
+        )
+      }
+    }
+  })
+}
+
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost) => {
@@ -47,6 +68,7 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
   const { pseudo: parameter } = parameters
+  addons.getChannel().emit(RE_WRITE_STYLESHEET, parameter)
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
@@ -60,7 +82,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, parameter)
+      handleApplyParameter(element, parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
@@ -78,7 +100,8 @@ const warnOnce = (message) => {
 }
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
-function rewriteStyleSheets(shadowRoot) {
+function rewriteStyleSheets(shadowRoot, options = {}) {
+  const { useExplicitSelectors } = options
   let styleSheets = shadowRoot ? shadowRoot.styleSheets : document.styleSheets
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
 
@@ -101,6 +124,9 @@ function rewriteStyleSheets(shadowRoot) {
                 if (selector.includes(`.pseudo-`)) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
+                  if (useExplicitSelectors) {
+                    return `.pseudo-${state}`
+                  }
                   states.push(state)
                   return ""
                 })
@@ -115,7 +141,15 @@ function rewriteStyleSheets(shadowRoot) {
                     .map((s) => `.pseudo-${s}`)
                     .join("")}) ${plainSelector}`
                 } else {
-                  stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
+                  if (useExplicitSelectors) {
+                    // Wwe are basically replacing the :pseudo inline and not using parents
+                    // E,g:
+                    // Instead of: button:hover -> .pseudo-hover button
+                    // We do: button:hover -> button.pseudo-hover
+                    stateSelector = plainSelector
+                  } else {
+                    stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
+                  }
                 }
                 return [selector, stateSelector]
               })
@@ -147,6 +181,8 @@ addons.getChannel().on(STORY_RENDERED, () => rewriteStyleSheets())
 
 // Reinitialize CSS enhancements every time a docs page is rendered
 addons.getChannel().on(DOCS_RENDERED, () => rewriteStyleSheets())
+
+addons.getChannel().on(RE_WRITE_STYLESHEET, (...args) => rewriteStyleSheets(null, ...args))
 
 // IE doesn't support shadow DOM
 if (Element.prototype.attachShadow) {

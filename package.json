@@ -27,6 +27,7 @@
     "storybook": "start-storybook -p 6006",
     "chromatic": "chromatic",
     "build:dist": "babel ./src --out-dir ./dist/cjs && BABEL_ESM=\"true\" babel ./src --out-dir ./dist/esm",
+    "build:dist:watch": "babel ./src --out-dir ./dist/cjs && BABEL_ESM=\"true\" babel ./src --out-dir ./dist/esm --watch",
     "build:storybook": "build-storybook",
     "prepublish": "yarn clean && yarn build:dist",
     "release": "auto shipit --base-branch=main"
