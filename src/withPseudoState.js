@@ -1,6 +1,8 @@
 /* eslint-env browser */
-import { addons, useEffect, useGlobals } from "@storybook/addons"
+import { addons, useEffect } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
+
+import { UPDATE_GLOBALS } from '@storybook/core-events';
 
 import { PSEUDO_STATES } from "./constants"
 import { splitSelectors } from "./splitSelectors"
@@ -46,14 +48,19 @@ const shadowHosts = new Set()
 addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
-export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
+export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
   const { pseudo: parameter } = parameters
-  const [{ pseudo: globals }, updateGlobals] = useGlobals()
+  const { pseudo: globals } = globalsArgs
+  const channel = addons.getChannel();
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
   useEffect(() => {
-    if (parameter !== globals && viewMode === "story") updateGlobals({ pseudo: parameter })
+    if (parameter !== globals && viewMode === "story") {
+      channel.emit(UPDATE_GLOBALS, {
+        globals: { pseudo: parameter },
+      });
+    }
   }, [parameter, viewMode])
 
   // Convert selected states to classnames and apply them to the story root element.
