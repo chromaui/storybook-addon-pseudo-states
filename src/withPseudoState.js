@@ -99,7 +99,7 @@ function rewriteStyleSheets(shadowRoot) {
             selectorText,
             selectors
               .flatMap((selector) => {
-                if (selector.includes(`.pseudo-`)) return []
+                if (!matchOne.test(selector) || selector.includes(".pseudo-")) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
                   states.push(state)
