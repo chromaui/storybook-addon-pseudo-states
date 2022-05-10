@@ -99,14 +99,16 @@ function rewriteStyleSheets(shadowRoot) {
             selectorText,
             selectors
               .flatMap((selector) => {
-                if (!matchOne.test(selector) || selector.includes(".pseudo-")) return []
+                if (selector.includes(".pseudo-")) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
                   states.push(state)
                   return ""
                 })
                 let stateSelector
-                if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
+                if (!matchOne.test(selector)) {
+                  return [selector]
+                } else if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
                   stateSelector = states.reduce(
                     (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
                     selector
