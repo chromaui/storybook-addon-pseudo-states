@@ -108,7 +108,8 @@ function rewriteStyleSheets(shadowRoot) {
                 let stateSelector
                 if (!matchOne.test(selector)) {
                   return [selector]
-                } else if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
+                }
+                if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
                   stateSelector = states.reduce(
                     (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
                     selector
