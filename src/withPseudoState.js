@@ -1,8 +1,11 @@
 /* eslint-env browser */
-import { addons, useEffect, useGlobals } from "@storybook/addons"
+import { addons, useEffect } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
 import { PSEUDO_STATES, REWRITE_STYLESHEET } from "./constants"
+import { UPDATE_GLOBALS } from '@storybook/core-events';
+
+import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
 const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
@@ -66,15 +69,21 @@ const shadowHosts = new Set()
 addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
-export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
+export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
   const { pseudo: parameter } = parameters
-  addons.getChannel().emit(REWRITE_STYLESHEET, parameter)
-  const [{ pseudo: globals }, updateGlobals] = useGlobals()
+  const { pseudo: globals } = globalsArgs
+  const channel = addons.getChannel();
+  
+  channel.emit(REWRITE_STYLESHEET, parameter)
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
   useEffect(() => {
-    if (parameter !== globals && viewMode === "story") updateGlobals({ pseudo: parameter })
+    if (parameter !== globals && viewMode === "story") {
+      channel.emit(UPDATE_GLOBALS, {
+        globals: { pseudo: parameter },
+      });
+    }
   }, [parameter, viewMode])
 
   // Convert selected states to classnames and apply them to the story root element.
@@ -116,12 +125,12 @@ function rewriteStyleSheets(shadowRoot, options = {}) {
       let index = 0
       for (const { cssText, selectorText } of sheet.cssRules) {
         if (matchOne.test(selectorText)) {
+          const selectors = splitSelectors(selectorText)
           const newRule = cssText.replace(
             selectorText,
-            selectorText
-              .split(", ")
+            selectors
               .flatMap((selector) => {
-                if (selector.includes(`.pseudo-`)) return []
+                if (selector.includes(".pseudo-")) return []
                 const states = []
                 const plainSelector = selector.replace(matchAll, (_, state) => {
                   if (useExplicitSelectors) {
@@ -131,7 +140,10 @@ function rewriteStyleSheets(shadowRoot, options = {}) {
                   return ""
                 })
                 let stateSelector
-                if (selector.startsWith(":host(")) {
+                if (!matchOne.test(selector)) {
+                  return [selector]
+                }
+                if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
                   stateSelector = states.reduce(
                     (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
                     selector
