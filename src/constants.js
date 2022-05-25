@@ -14,4 +14,4 @@ export const PSEUDO_STATES = {
   target: "target",
 }
 
-export const RE_WRITE_STYLESHEET = "rewriteStyleSheet"
+export const REWRITE_STYLESHEET = "rewriteStyleSheet"

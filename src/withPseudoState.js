@@ -2,7 +2,7 @@
 import { addons, useEffect, useGlobals } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
-import { PSEUDO_STATES, RE_WRITE_STYLESHEET } from "./constants"
+import { PSEUDO_STATES, REWRITE_STYLESHEET } from "./constants"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
 const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
@@ -35,7 +35,7 @@ const handleApplyParameter = (rootElement, parameter = {}) => {
         applyParameter(rootElement, { [state]: selector })
       } else if (typeof selector === "string") {
         // explicit selectors API - applying pseudo class to a specific element
-        const elements = document.querySelectorAll(selector)
+        const elements = rootElement.querySelectorAll(selector)
         elements.forEach((element) => applyParameter(element, { [state]: selector }))
       } else if (Array.isArray(selector)) {
         // explicit selectors API - we have an array (of strings) recursively handle each one
@@ -68,7 +68,7 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn, { viewMode, parameters, id }) => {
   const { pseudo: parameter } = parameters
-  addons.getChannel().emit(RE_WRITE_STYLESHEET, parameter)
+  addons.getChannel().emit(REWRITE_STYLESHEET, parameter)
   const [{ pseudo: globals }, updateGlobals] = useGlobals()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
@@ -142,10 +142,8 @@ function rewriteStyleSheets(shadowRoot, options = {}) {
                     .join("")}) ${plainSelector}`
                 } else {
                   if (useExplicitSelectors) {
-                    // Wwe are basically replacing the :pseudo inline and not using parents
-                    // E,g:
-                    // Instead of: button:hover -> .pseudo-hover button
-                    // We do: button:hover -> button.pseudo-hover
+                    // Replace the :pseudo selector with .class selector on the element directly, rather than an ancestor element.
+                    // For example, instead of rewriting `button:hover` to `.pseudo-hover button`, rewrite it to `button.pseudo-hover`.
                     stateSelector = plainSelector
                   } else {
                     stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
@@ -182,7 +180,7 @@ addons.getChannel().on(STORY_RENDERED, () => rewriteStyleSheets())
 // Reinitialize CSS enhancements every time a docs page is rendered
 addons.getChannel().on(DOCS_RENDERED, () => rewriteStyleSheets())
 
-addons.getChannel().on(RE_WRITE_STYLESHEET, (...args) => rewriteStyleSheets(null, ...args))
+addons.getChannel().on(REWRITE_STYLESHEET, (...args) => rewriteStyleSheets(null, ...args))
 
 // IE doesn't support shadow DOM
 if (Element.prototype.attachShadow) {
