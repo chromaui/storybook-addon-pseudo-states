@@ -2,7 +2,7 @@
 import { addons, useEffect } from "@storybook/addons"
 import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
 
-import { UPDATE_GLOBALS } from '@storybook/core-events';
+import { UPDATE_GLOBALS } from "@storybook/core-events"
 
 import { PSEUDO_STATES } from "./constants"
 import { splitSelectors } from "./splitSelectors"
@@ -51,7 +51,7 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
-  const channel = addons.getChannel();
+  const channel = addons.getChannel()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
@@ -59,7 +59,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
     if (parameter !== globals && viewMode === "story") {
       channel.emit(UPDATE_GLOBALS, {
         globals: { pseudo: parameter },
-      });
+      })
     }
   }, [parameter, viewMode])
 
@@ -68,11 +68,11 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, parameter)
+      applyParameter(element, globals)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
-  }, [parameter, viewMode])
+  }, [globals, viewMode])
 
   return StoryFn()
 }
