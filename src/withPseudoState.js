@@ -1,10 +1,13 @@
 /* eslint-env browser */
 import { addons, useEffect } from "@storybook/addons"
-import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
+import {
+  DOCS_RENDERED,
+  STORY_CHANGED,
+  STORY_RENDERED,
+  UPDATE_GLOBALS,
+} from "@storybook/core-events"
 
 import { PSEUDO_STATES, REWRITE_STYLESHEET } from "./constants"
-import { UPDATE_GLOBALS } from '@storybook/core-events';
-
 import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
@@ -32,7 +35,7 @@ const applyParameter = (element, parameter) =>
 const handleApplyParameter = (rootElement, parameter = {}) => {
   Object.entries(parameter).forEach(([state, selector]) => {
     if (!!PSEUDO_STATES[state]) {
-      // handle pseudo state keys only 
+      // handle pseudo state keys only
       if (typeof selector === "boolean") {
         // default API - applying pseudo class to root element.
         applyParameter(rootElement, { [state]: selector })
@@ -72,8 +75,8 @@ addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
 export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
-  const channel = addons.getChannel();
-  
+  const channel = addons.getChannel()
+
   channel.emit(REWRITE_STYLESHEET, parameter)
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
@@ -82,7 +85,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
     if (parameter !== globals && viewMode === "story") {
       channel.emit(UPDATE_GLOBALS, {
         globals: { pseudo: parameter },
-      });
+      })
     }
   }, [parameter, viewMode])
 
@@ -91,11 +94,11 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      handleApplyParameter(element, parameter)
+      handleApplyParameter(element, globals)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
-  }, [parameter, viewMode])
+  }, [globals, viewMode])
 
   return StoryFn()
 }
