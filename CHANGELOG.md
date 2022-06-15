@@ -1,3 +1,16 @@
+# v1.14.1 (Wed Jun 15 2022)
+
+#### ⚠️ Pushed to `main`
+
+- Fix toolbar toggles ([@ghengeveld](https://github.com/ghengeveld))
+- Upgrade Storybook ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v1.0.0 (Tue May 24 2022)
 
 #### 🚀 Enhancement
