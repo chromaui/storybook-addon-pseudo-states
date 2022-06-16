@@ -55,6 +55,12 @@ describe("rewriteStyleSheet", () => {
   it('supports ":host"', () => {
     const sheet = new Sheet(":host(:hover) { color: red }")
     rewriteStyleSheet(sheet)
-    expect(sheet.cssRules[0]).toContain(":host(:hover), :host(.pseudo-hover)")
+    expect(sheet.cssRules[0]).toEqual(":host(:hover), :host(.pseudo-hover) { color: red }")
+  })
+
+  it('supports ":not"', () => {
+    const sheet = new Sheet(":not(:hover) { color: red }")
+    rewriteStyleSheet(sheet)
+    expect(sheet.cssRules[0]).toEqual(":not(:hover), :not(.pseudo-hover) { color: red }")
   })
 })

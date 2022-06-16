@@ -43,7 +43,9 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           ? `:host(${states.map((s) => `.pseudo-${s}`).join("")}) ${plainSelector}`
           : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
 
-        return [selector, classSelector, ancestorSelector]
+        return [selector, classSelector, ancestorSelector].filter(
+          (selector) => !selector.includes(":not()")
+        )
       })
       .join(", ")
   )
