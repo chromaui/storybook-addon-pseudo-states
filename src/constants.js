@@ -13,5 +13,3 @@ export const PSEUDO_STATES = {
   link: "link",
   target: "target",
 }
-
-export const REWRITE_STYLESHEET = "rewriteStyleSheet"
