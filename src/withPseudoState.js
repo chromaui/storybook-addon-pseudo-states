@@ -81,11 +81,11 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, globals)
+      applyParameter(element, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
-  }, [globals, viewMode])
+  }, [globals, parameter, viewMode])
 
   return StoryFn()
 }
