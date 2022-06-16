@@ -49,3 +49,40 @@ Focus.parameters = { pseudo: { focus: true } }
 
 export const Active = Template.bind()
 Active.parameters = { pseudo: { active: true } }
+
+export const DirectSelector = () => (
+  <>
+    <div className="story-grid">
+      <Button>Normal</Button>
+      <Button data-hover>Hover</Button>
+      <Button data-focus>Focus</Button>
+      <Button data-active>Active</Button>
+      <Button data-hover data-focus>
+        Hover Focus
+      </Button>
+      <Button data-hover data-active>
+        Hover Active
+      </Button>
+      <Button data-focus data-active>
+        Focus Active
+      </Button>
+      <Button data-hover data-focus data-active>
+        Hover Focus Active
+      </Button>
+    </div>
+    <h3>Multiple hovered button grouped</h3>
+    <div data-hover-group>
+      <Button>Hovered 1</Button>
+      <Button>Hovered 2</Button>
+      <Button>Hovered 3</Button>
+    </div>
+  </>
+)
+
+DirectSelector.parameters = {
+  pseudo: {
+    hover: ["[data-hover]", "[data-hover-group] button"],
+    focus: "[data-focus]",
+    active: ["[data-active]"],
+  },
+}

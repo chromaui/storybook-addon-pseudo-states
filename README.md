@@ -41,9 +41,32 @@ module.exports = {
 
 You can have your stories automatically use a specific set of pseudo states, by setting the `pseudo` property on `parameters`:
 
-```js
+```jsx
 export const Hover = () => <Button>Label</Button>
 Hover.parameters = { pseudo: { hover: true } }
 ```
 
 This is what enables snapshot testing your pseudo states in [Chromatic](https://www.chromatic.com/).
+
+### Targeting specific elements
+
+If you don't want to force or toggle pseudo styles to all elements that use them, but rather only enable them on specific elements, you can set a string or array value instead of a boolean:
+
+```jsx
+export const Buttons = () => (
+  <>
+    <Button id="one">Hover</Button>
+    <Button id="two">Hover focus</Button>
+    <Button id="three">Hover focus active</Button>
+  </>
+)
+Buttons.parameters = {
+  pseudo: {
+    hover: ["#one", "#two", "#three"],
+    focus: ["#two", "#three"],
+    active: "#three",
+  },
+}
+```
+
+This accepts a single CSS selector (string), or an array of CSS selectors on which to enable that pseudo style.

@@ -1,15 +1,17 @@
 /* eslint-env browser */
 import { addons, useEffect } from "@storybook/addons"
-import { DOCS_RENDERED, STORY_CHANGED, STORY_RENDERED } from "@storybook/core-events"
-
-import { UPDATE_GLOBALS } from "@storybook/core-events"
+import {
+  DOCS_RENDERED,
+  STORY_CHANGED,
+  STORY_RENDERED,
+  UPDATE_GLOBALS,
+} from "@storybook/core-events"
 
 import { PSEUDO_STATES } from "./constants"
-import { splitSelectors } from "./splitSelectors"
+import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
-const pseudoStates = Object.values(PSEUDO_STATES)
-const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
-const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
+const channel = addons.getChannel()
+const shadowHosts = new Set()
 
 // Drops any existing pseudo state classnames that carried over from a previously viewed story
 // before adding the new classnames. We do this the old-fashioned way, for IE compatibility.
@@ -21,13 +23,29 @@ const applyClasses = (element, classnames) => {
     .join(" ")
 }
 
-const applyParameter = (element, parameter) =>
-  applyClasses(
-    element,
-    Object.entries(parameter || {})
-      .filter(([_, value]) => value)
-      .map(([key]) => `pseudo-${PSEUDO_STATES[key]}`)
-  )
+const applyParameter = (rootElement, parameter) => {
+  const map = new Map([[rootElement, new Set()]])
+  const add = (target, state) => map.set(target, new Set([...(map.get(target) || []), state]))
+
+  Object.entries(parameter || {}).forEach(([state, value]) => {
+    if (typeof value === "boolean") {
+      // default API - applying pseudo class to root element.
+      add(rootElement, value && state)
+    } else if (typeof value === "string") {
+      // explicit selectors API - applying pseudo class to a specific element
+      rootElement.querySelectorAll(value).forEach((el) => add(el, state))
+    } else if (Array.isArray(value)) {
+      // explicit selectors API - we have an array (of strings) recursively handle each one
+      value.forEach((sel) => rootElement.querySelectorAll(sel).forEach((el) => add(el, state)))
+    }
+  })
+
+  map.forEach((states, target) => {
+    const classnames = []
+    states.forEach((key) => PSEUDO_STATES[key] && classnames.push(`pseudo-${PSEUDO_STATES[key]}`))
+    applyClasses(target, classnames)
+  })
+}
 
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
@@ -43,15 +61,10 @@ const updateShadowHost = (shadowHost) => {
   applyClasses(shadowHost, classnames)
 }
 
-// Keep track of attached shadow host elements for the current story
-const shadowHosts = new Set()
-addons.getChannel().on(STORY_CHANGED, () => shadowHosts.clear())
-
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
-  const channel = addons.getChannel()
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
@@ -68,96 +81,30 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, globals)
+      applyParameter(element, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
-  }, [globals, viewMode])
+  }, [globals, parameter, viewMode])
 
   return StoryFn()
 }
 
-const warnings = new Set()
-const warnOnce = (message) => {
-  if (warnings.has(message)) return
-  // eslint-disable-next-line no-console
-  console.warn(message)
-  warnings.add(message)
-}
-
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
-function rewriteStyleSheets(shadowRoot) {
+const rewriteStyleSheets = (shadowRoot) => {
   let styleSheets = shadowRoot ? shadowRoot.styleSheets : document.styleSheets
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-
-  for (const sheet of styleSheets) {
-    if (sheet._pseudoStatesRewritten) {
-      continue
-    } else {
-      sheet._pseudoStatesRewritten = true
-    }
-
-    try {
-      let index = 0
-      for (const { cssText, selectorText } of sheet.cssRules) {
-        if (matchOne.test(selectorText)) {
-          const selectors = splitSelectors(selectorText)
-          const newRule = cssText.replace(
-            selectorText,
-            selectors
-              .flatMap((selector) => {
-                if (selector.includes(".pseudo-")) return []
-                const states = []
-                const plainSelector = selector.replace(matchAll, (_, state) => {
-                  states.push(state)
-                  return ""
-                })
-                let stateSelector
-                if (!matchOne.test(selector)) {
-                  return [selector]
-                }
-                if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
-                  stateSelector = states.reduce(
-                    (acc, state) => acc.replaceAll(`:${state}`, `.pseudo-${state}`),
-                    selector
-                  )
-                } else if (shadowRoot) {
-                  stateSelector = `:host(${states
-                    .map((s) => `.pseudo-${s}`)
-                    .join("")}) ${plainSelector}`
-                } else {
-                  stateSelector = `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
-                }
-                return [selector, stateSelector]
-              })
-              .join(", ")
-          )
-          sheet.deleteRule(index)
-          sheet.insertRule(newRule, index)
-          if (shadowRoot) shadowHosts.add(shadowRoot.host)
-        }
-        index++
-        if (index > 1000) {
-          warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
-          break
-        }
-      }
-    } catch (e) {
-      if (e.toString().includes("cssRules")) {
-        warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
-      } else {
-        // eslint-disable-next-line no-console
-        console.error(e, sheet.href)
-      }
-    }
-  }
+  Array.from(styleSheets).forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
 }
 
+// Only track shadow hosts for the current story
+channel.on(STORY_CHANGED, () => shadowHosts.clear())
+
 // Reinitialize CSS enhancements every time the story changes
-addons.getChannel().on(STORY_RENDERED, () => rewriteStyleSheets())
+channel.on(STORY_RENDERED, () => rewriteStyleSheets())
 
 // Reinitialize CSS enhancements every time a docs page is rendered
-addons.getChannel().on(DOCS_RENDERED, () => rewriteStyleSheets())
+channel.on(DOCS_RENDERED, () => rewriteStyleSheets())
 
 // IE doesn't support shadow DOM
 if (Element.prototype.attachShadow) {

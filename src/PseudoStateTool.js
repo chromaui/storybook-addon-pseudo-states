@@ -18,12 +18,11 @@ const options = Object.keys(PSEUDO_STATES).sort()
 
 export const PseudoStateTool = () => {
   const [{ pseudo }, updateGlobals] = useGlobals()
-  const hasSelection = useMemo(() => !!pseudo && Object.values(pseudo).includes(true), [pseudo])
-  const getValue = useCallback((option) => (pseudo ? pseudo[option] : false), [pseudo])
+  const isActive = useCallback((option) => pseudo?.[option] === true, [pseudo])
 
   const toggleOption = useCallback(
-    (option) => () => updateGlobals({ pseudo: { ...pseudo, [option]: !getValue(option) } }),
-    [pseudo, getValue]
+    (option) => () => updateGlobals({ pseudo: { ...pseudo, [option]: !isActive(option) } }),
+    [pseudo]
   )
 
   return (
@@ -34,15 +33,19 @@ export const PseudoStateTool = () => {
         <TooltipLinkList
           links={options.map((option) => ({
             id: option,
-            title: <LinkTitle active={getValue(option)}>:{PSEUDO_STATES[option]}</LinkTitle>,
-            right: <LinkIcon icon="check" width={12} height={12} active={getValue(option)} />,
+            title: <LinkTitle active={isActive(option)}>:{PSEUDO_STATES[option]}</LinkTitle>,
+            right: <LinkIcon icon="check" width={12} height={12} active={isActive(option)} />,
             onClick: toggleOption(option),
-            active: getValue(option),
+            active: isActive(option),
           }))}
         />
       )}
     >
-      <IconButton key="pseudo-state" title="Select CSS pseudo states" active={hasSelection}>
+      <IconButton
+        key="pseudo-state"
+        title="Select CSS pseudo states"
+        active={options.some(isActive)}
+      >
         <Icons icon="button" />
       </IconButton>
     </WithTooltip>
