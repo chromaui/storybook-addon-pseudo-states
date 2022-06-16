@@ -51,25 +51,39 @@ export const Active = Template.bind()
 Active.parameters = { pseudo: { active: true } }
 
 export const DirectSelector = () => (
-  <div>
-    <Button>Regular</Button>
-    <Button data-id="hover">Hover</Button>
-    <Button data-id="focus">Focus</Button>
-    <Button data-id="active">Active</Button>
-    <div data-id="hover-group">
-      <h3>Multiple hovered button grouped</h3>
+  <>
+    <div className="story-grid">
+      <Button>Normal</Button>
+      <Button data-hover>Hover</Button>
+      <Button data-focus>Focus</Button>
+      <Button data-active>Active</Button>
+      <Button data-hover data-focus>
+        Hover Focus
+      </Button>
+      <Button data-hover data-active>
+        Hover Active
+      </Button>
+      <Button data-focus data-active>
+        Focus Active
+      </Button>
+      <Button data-hover data-focus data-active>
+        Hover Focus Active
+      </Button>
+    </div>
+    <h3>Multiple hovered button grouped</h3>
+    <div data-hover-group>
       <Button>Hovered 1</Button>
       <Button>Hovered 2</Button>
       <Button>Hovered 3</Button>
     </div>
-  </div>
+  </>
 )
 
 DirectSelector.parameters = {
   pseudo: {
     useExplicitSelectors: true,
-    hover: ['[data-id="hover"]', '[data-id="hover-group"] button'],
-    focus: '[data-id="focus"]',
-    active: ['[data-id="active"]']
+    hover: ["[data-hover]", "[data-hover-group] button"],
+    focus: "[data-focus]",
+    active: ["[data-active]"],
   },
 }

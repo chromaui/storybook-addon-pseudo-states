@@ -24,34 +24,27 @@ const applyClasses = (element, classnames) => {
     .join(" ")
 }
 
-const applyParameter = (element, parameter) =>
-  applyClasses(
-    element,
-    Object.entries(parameter || {})
-      .filter(([_, value]) => value)
-      .map(([key]) => `pseudo-${PSEUDO_STATES[key]}`)
-  )
-
-const handleApplyParameter = (rootElement, parameter = {}) => {
-  Object.entries(parameter).forEach(([state, selector]) => {
-    if (!!PSEUDO_STATES[state]) {
-      // handle pseudo state keys only
-      if (typeof selector === "boolean") {
+const applyParameter = (rootElement, parameter) =>
+  Object.entries(parameter || {})
+    .reduce((acc, [state, value]) => {
+      const set = (target, state) => acc.set(target, new Set([...(acc.get(target) || []), state]))
+      if (typeof value === "boolean") {
         // default API - applying pseudo class to root element.
-        applyParameter(rootElement, { [state]: selector })
-      } else if (typeof selector === "string") {
+        set(rootElement, value && state)
+      } else if (typeof value === "string") {
         // explicit selectors API - applying pseudo class to a specific element
-        const elements = rootElement.querySelectorAll(selector)
-        elements.forEach((element) => applyParameter(element, { [state]: selector }))
-      } else if (Array.isArray(selector)) {
+        rootElement.querySelectorAll(value).forEach((el) => set(el, state))
+      } else if (Array.isArray(value)) {
         // explicit selectors API - we have an array (of strings) recursively handle each one
-        selector.forEach((singleSelector) =>
-          handleApplyParameter(rootElement, { [state]: singleSelector })
-        )
+        value.forEach((sel) => rootElement.querySelectorAll(sel).forEach((el) => set(el, state)))
       }
-    }
-  })
-}
+      return acc
+    }, new Map())
+    .forEach((states, target) => {
+      const classnames = []
+      states.forEach((key) => PSEUDO_STATES[key] && classnames.push(`pseudo-${PSEUDO_STATES[key]}`))
+      applyClasses(target, classnames)
+    })
 
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
@@ -94,7 +87,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      handleApplyParameter(element, globals)
+      applyParameter(element, globals)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
