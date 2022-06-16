@@ -1,3 +1,17 @@
+# v1.15.0 (Thu Jun 16 2022)
+
+#### 🚀 Enhancement
+
+- Add support for targeting specific elements [#25](https://github.com/chromaui/storybook-addon-pseudo-states/pull/25) (sagiv.bengiat@appsflyer.com [@ghengeveld](https://github.com/ghengeveld) [@sag1v](https://github.com/sag1v))
+
+#### Authors: 3
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Sagiv ben giat ([@sag1v](https://github.com/sag1v))
+- sagiv.bengiat (sagiv.bengiat@appsflyer.com)
+
+---
+
 # v1.14.1 (Wed Jun 15 2022)
 
 #### ⚠️ Pushed to `main`
