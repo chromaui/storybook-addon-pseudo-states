@@ -81,7 +81,6 @@ export const DirectSelector = () => (
 
 DirectSelector.parameters = {
   pseudo: {
-    useExplicitSelectors: true,
     hover: ["[data-hover]", "[data-hover-group] button"],
     focus: "[data-focus]",
     active: ["[data-active]"],
