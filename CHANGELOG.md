@@ -1,3 +1,15 @@
+# v1.15.1 (Wed Jun 22 2022)
+
+#### 🐛 Bug Fix
+
+- Update react and react-dom peer dependencies level [#35](https://github.com/chromaui/storybook-addon-pseudo-states/pull/35) ([@dsueltenfuss](https://github.com/dsueltenfuss))
+
+#### Authors: 1
+
+- Dave Sueltenfuss ([@dsueltenfuss](https://github.com/dsueltenfuss))
+
+---
+
 # v1.15.0 (Thu Jun 16 2022)
 
 #### 🚀 Enhancement
