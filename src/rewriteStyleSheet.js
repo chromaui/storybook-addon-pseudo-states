@@ -2,8 +2,17 @@ import { PSEUDO_STATES } from "./constants"
 import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
-const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
-const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
+/** skip odd number of '\' escapes
+ * but keep even
+ * @example
+ * skip \:pseudo-selector 
+ * skip \\\:pseudo-selector 
+ * 
+ * keep \\:pseudo-selector
+ * keep \\\\:pseudo-selector
+ */
+const matchOne = new RegExp(`(?<=(?<!\\\\)(?:\\\\\\\\)*):(${pseudoStates.join("|")})`)
+const matchAll = new RegExp(`(?<=(?<!\\\\)(?:\\\\\\\\)*):(${pseudoStates.join("|")})`, "g")
 
 const warnings = new Set()
 const warnOnce = (message) => {
@@ -31,7 +40,7 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           return ""
         })
         const classSelector = states.reduce(
-          (acc, state) => acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`),
+          (acc, state) => acc.replace(new RegExp(`(?<=(?<!\\\\)(?:\\\\\\\\)*):${state}`, "g"), `.pseudo-${state}`),
           selector
         )
 
