@@ -13,6 +13,9 @@ const warnOnce = (message) => {
   warnings.add(message)
 }
 
+const isExcludedPseudoElement = (pseudoState) =>
+  EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
+
 const rewriteRule = (cssText, selectorText, shadowRoot) => {
   return cssText.replace(
     selectorText,
@@ -30,30 +33,24 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           states.push(state)
           return ""
         })
-
-        const getDoesSelectorEndsWithExcludedPseudoElement = (pseudo) =>
-          EXCLUDED_PSEUDO_ELEMENTS.some((element) => {
-            return selector.endsWith(`${element}:${pseudo}`)
-          })
-
-        const classSelector = states.reduce((acc, state) => {
-          if (getDoesSelectorEndsWithExcludedPseudoElement(state)) {
-            return undefined
-          }
-          return acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`)
-        }, selector)
+        const classSelector = states.reduce(
+          (acc, state) =>
+            !isExcludedPseudoElement(state) &&
+            acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`),
+          selector
+        )
 
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
-          return [selector, classSelector]
+          return [selector, classSelector].filter(Boolean)
         }
 
         const ancestorSelector = shadowRoot
           ? `:host(${states.map((s) => `.pseudo-${s}`).join("")}) ${plainSelector}`
           : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
 
-        return [selector, classSelector, ancestorSelector]
-          .filter((selector) => !selector?.includes(":not()"))
-          .filter(Boolean)
+        return [selector, classSelector, ancestorSelector].filter(
+          (selector) => selector && !selector.includes(":not()")
+        )
       })
       .join(", ")
   )
