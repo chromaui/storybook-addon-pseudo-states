@@ -13,7 +13,7 @@ const warnOnce = (message) => {
   warnings.add(message)
 }
 
-const isExcludedPseudoElement = (pseudoState) =>
+const isExcludedPseudoElement = (selector, pseudoState) =>
   EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
 
 const rewriteRule = (cssText, selectorText, shadowRoot) => {
@@ -35,7 +35,7 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
         })
         const classSelector = states.reduce(
           (acc, state) =>
-            !isExcludedPseudoElement(state) &&
+            !isExcludedPseudoElement(selector, state) &&
             acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`),
           selector
         )
