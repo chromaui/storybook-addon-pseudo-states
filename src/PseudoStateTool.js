@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react"
+import React, { useCallback } from "react"
 import { useGlobals } from "@storybook/api"
 import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
 import { styled, color } from "@storybook/theming"
