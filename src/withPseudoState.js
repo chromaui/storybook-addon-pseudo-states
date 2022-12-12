@@ -63,6 +63,12 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
 
+  const canvasElement =
+    viewMode === "docs"
+      ? document.getElementById(`story--${id}`)
+      : document.getElementById("storybook-root") || // Storybook 7.0+
+        document.getElementById("root")
+
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
   useEffect(() => {
@@ -77,12 +83,11 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, globals || parameter)
+      applyParameter(canvasElement, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
-  }, [globals, parameter, viewMode])
+  }, [canvasElement, globals, parameter])
 
   return StoryFn()
 }
