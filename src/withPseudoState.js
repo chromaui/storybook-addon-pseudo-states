@@ -14,13 +14,10 @@ const channel = addons.getChannel()
 const shadowHosts = new Set()
 
 // Drops any existing pseudo state classnames that carried over from a previously viewed story
-// before adding the new classnames. We do this the old-fashioned way, for IE compatibility.
+// before adding the new classnames. We use forEach for IE compatibility.
 const applyClasses = (element, classnames) => {
-  element.className = element.className
-    .split(" ")
-    .filter((classname) => classname && classname.indexOf("pseudo-") !== 0)
-    .concat(...classnames)
-    .join(" ")
+  Object.values(PSEUDO_STATES).forEach((state) => element.classList.remove(`pseudo-${state}`))
+  classnames.forEach((classname) => element.classList.add(classname))
 }
 
 const applyParameter = (rootElement, parameter) => {
