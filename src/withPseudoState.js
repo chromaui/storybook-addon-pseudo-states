@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import { addons, useEffect } from "@storybook/addons"
+import { addons, useEffect, useMemo } from "@storybook/addons"
 import {
   DOCS_RENDERED,
   STORY_CHANGED,
@@ -63,11 +63,12 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
 
-  const canvasElement =
+  const canvasElement = useMemo(() => {
     viewMode === "docs"
       ? document.getElementById(`story--${id}`)
       : document.getElementById("storybook-root") || // Storybook 7.0+
         document.getElementById("root")
+  }, [viewMode, id])
 
   // Sync parameter to globals, used by the toolbar (only in canvas as this
   // doesn't make sense for docs because many stories are displayed at once)
