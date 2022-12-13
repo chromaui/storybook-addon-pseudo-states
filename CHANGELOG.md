@@ -1,3 +1,16 @@
+# v1.15.2 (Tue Dec 13 2022)
+
+#### 🐛 Bug Fix
+
+- Fixes an issue with particular pseudo classes, which has classes applied on them [#45](https://github.com/chromaui/storybook-addon-pseudo-states/pull/45) ([@valentinpalkovic](https://github.com/valentinpalkovic) [@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 2
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Valentin Palkovic ([@valentinpalkovic](https://github.com/valentinpalkovic))
+
+---
+
 # v1.15.1 (Wed Jun 22 2022)
 
 #### 🐛 Bug Fix
