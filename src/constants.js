@@ -1,6 +1,10 @@
 export const ADDON_ID = "storybook/pseudo-states"
 export const TOOL_ID = `${ADDON_ID}/tool`
 
+// Pseudo-elements which are not allowed to have classes applied on them
+// E.g. ::-webkit-scrollbar-thumb.pseudo-hover is not a valid selector
+export const EXCLUDED_PSEUDO_ELEMENTS = ["::-webkit-scrollbar-thumb"]
+
 // Dynamic pseudo-classes
 // @see https://www.w3.org/TR/2018/REC-selectors-3-20181106/#dynamic-pseudos
 export const PSEUDO_STATES = {
