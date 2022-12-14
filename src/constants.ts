@@ -16,4 +16,6 @@ export const PSEUDO_STATES = {
   visited: "visited",
   link: "link",
   target: "target",
-}
+} as const
+
+export type PseudoState = keyof typeof PSEUDO_STATES
