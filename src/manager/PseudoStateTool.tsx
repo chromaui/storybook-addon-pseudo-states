@@ -3,7 +3,7 @@ import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/comp
 import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
-import { PSEUDO_STATES } from "./constants"
+import { PSEUDO_STATES } from "../constants"
 
 const LinkTitle = styled.span(({ active }) => ({
   color: active ? color.secondary : "inherit",
