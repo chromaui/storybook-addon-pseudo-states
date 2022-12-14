@@ -1,3 +1,15 @@
+# v1.15.3 (Wed Dec 14 2022)
+
+#### 🐛 Bug Fix
+
+- Add support for Storybook 7.0 root element [#46](https://github.com/chromaui/storybook-addon-pseudo-states/pull/46) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v1.15.2 (Tue Dec 13 2022)
 
 #### 🐛 Bug Fix
