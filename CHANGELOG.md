@@ -1,3 +1,16 @@
+# v1.15.4 (Wed Dec 14 2022)
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'ghengeveld/ap-2628-pseudo-states-addon-storybook-7-support' ([@ghengeveld](https://github.com/ghengeveld))
+- Convert to TypeScript and fix everything ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v1.15.3 (Wed Dec 14 2022)
 
 #### 🐛 Bug Fix
