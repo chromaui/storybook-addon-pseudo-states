@@ -1,6 +1,6 @@
-const isAtRule = (selector) => selector.indexOf("@") === 0
+const isAtRule = (selector: string) => selector.indexOf("@") === 0
 
-export const splitSelectors = (selectors) => {
+export const splitSelectors = (selectors: string) => {
   if (isAtRule(selectors)) return [selectors]
 
   let result = []
