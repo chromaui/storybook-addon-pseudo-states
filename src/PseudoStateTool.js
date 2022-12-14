@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
-import { useGlobals } from "@storybook/api"
 import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
+import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
 import { PSEUDO_STATES } from "./constants"

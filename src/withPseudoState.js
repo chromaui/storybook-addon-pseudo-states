@@ -1,11 +1,11 @@
 /* eslint-env browser */
-import { addons, useEffect, useMemo } from "@storybook/addons"
 import {
   DOCS_RENDERED,
   STORY_CHANGED,
   STORY_RENDERED,
   UPDATE_GLOBALS,
 } from "@storybook/core-events"
+import { addons, useEffect, useMemo } from "@storybook/preview-api"
 
 import { PSEUDO_STATES } from "./constants"
 import { rewriteStyleSheet } from "./rewriteStyleSheet"

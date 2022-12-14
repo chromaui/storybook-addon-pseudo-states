@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-pseudo-states",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "description": "CSS pseudo states for Storybook",
   "keywords": [
     "storybook-addons",
@@ -38,12 +38,9 @@
     "@babel/core": "^7.20.5",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
-    "@storybook/addon-docs": "^7.0.0-beta.3",
     "@storybook/addon-essentials": "^7.0.0-beta.3",
     "@storybook/addon-interactions": "^7.0.0-beta.3",
     "@storybook/addon-links": "^7.0.0-beta.3",
-    "@storybook/blocks": "^7.0.0-beta.3",
-    "@storybook/cli": "^7.0.0-beta.3",
     "@storybook/react": "^7.0.0-beta.3",
     "@storybook/react-webpack5": "^7.0.0-beta.3",
     "@storybook/testing-library": "^0.0.13",
@@ -57,11 +54,11 @@
     "storybook": "^7.0.0-beta.3"
   },
   "peerDependencies": {
-    "@storybook/addons": "^6.5.0",
-    "@storybook/api": "^6.5.0",
-    "@storybook/components": "^6.5.0",
-    "@storybook/core-events": "^6.5.0",
-    "@storybook/theming": "^6.5.0",
+    "@storybook/components": "next",
+    "@storybook/core-events": "next",
+    "@storybook/manager-api": "next",
+    "@storybook/preview-api": "next",
+    "@storybook/theming": "next",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },

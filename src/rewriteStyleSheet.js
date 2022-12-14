@@ -1,4 +1,4 @@
-import { PSEUDO_STATES } from "./constants"
+import { PSEUDO_STATES, EXCLUDED_PSEUDO_ELEMENTS } from "./constants"
 import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
@@ -12,6 +12,9 @@ const warnOnce = (message) => {
   console.warn(message)
   warnings.add(message)
 }
+
+const isExcludedPseudoElement = (selector, pseudoState) =>
+  EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
 
 const rewriteRule = (cssText, selectorText, shadowRoot) => {
   return cssText.replace(
@@ -31,12 +34,14 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           return ""
         })
         const classSelector = states.reduce(
-          (acc, state) => acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`),
+          (acc, state) =>
+            !isExcludedPseudoElement(selector, state) &&
+            acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`),
           selector
         )
 
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
-          return [selector, classSelector]
+          return [selector, classSelector].filter(Boolean)
         }
 
         const ancestorSelector = shadowRoot
@@ -44,7 +49,7 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
 
         return [selector, classSelector, ancestorSelector].filter(
-          (selector) => !selector.includes(":not()")
+          (selector) => selector && !selector.includes(":not()")
         )
       })
       .join(", ")

@@ -29,6 +29,13 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0]).toContain(".pseudo-hover a")
   })
 
+  it("does not add .pseudo-<class> to pseudo-class, which does not support classes", () => {
+    const sheet = new Sheet("::-webkit-scrollbar-thumb:hover { border-color: transparent; }")
+    rewriteStyleSheet(sheet)
+    console.log(sheet.cssRules[0])
+    expect(sheet.cssRules[0]).not.toContain("::-webkit-scrollbar-thumb.pseudo-hover")
+  })
+
   it("adds alternative selector for each pseudo selector", () => {
     const sheet = new Sheet("a:hover, a:focus { color: red }")
     rewriteStyleSheet(sheet)
