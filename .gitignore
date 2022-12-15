@@ -2,6 +2,4 @@ dist/
 node_modules/
 storybook-static/
 build-storybook.log
-package-lock.json
-yarn.lock
 .env
