@@ -93,7 +93,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 const rewriteStyleSheets = (shadowRoot) => {
   let styleSheets = shadowRoot ? shadowRoot.styleSheets : document.styleSheets
-  if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
+  if (shadowRoot && shadowRoot.adoptedStyleSheets ? shadowRoot.adoptedStyleSheets.length : undefined) styleSheets = shadowRoot.adoptedStyleSheets
   Array.from(styleSheets).forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
 }
 
