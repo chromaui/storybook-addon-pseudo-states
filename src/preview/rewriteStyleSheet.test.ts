@@ -1,9 +1,13 @@
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
 class Rule {
-  cssText: any
-  selectorText: any
+  cssText: string
+  selectorText?: string
   constructor(cssText: string) {
+    if (cssText.trim().startsWith("@")) {
+      this.cssText = cssText
+      return
+    }
     this.cssText = cssText
     this.selectorText = cssText.slice(0, cssText.indexOf(" {"))
   }
@@ -80,5 +84,33 @@ describe("rewriteStyleSheet", () => {
     const sheet = new Sheet(":not(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].cssText).toEqual(":not(:hover), :not(.pseudo-hover) { color: red }")
+  })
+
+  it("override correct rules with media query present", () => {
+    const sheet = new Sheet(
+`@media (max-width: 790px) {
+  .test {
+    background-color: green;
+  }
+}`,
+`.test {
+  background-color: blue;
+}`,
+`.test:hover {
+  background-color: red;
+}`,
+`.test2:hover {
+  background-color: white;
+}`)
+    rewriteStyleSheet(sheet)
+    expect(sheet.cssRules[0].cssText).toContain("@media (max-width: 790px)")
+    expect(sheet.cssRules[1].selectorText).toContain(".test")
+    expect(sheet.cssRules[2].selectorText).toContain(".test:hover")
+    expect(sheet.cssRules[2].selectorText).toContain(".test.pseudo-hover")
+    expect(sheet.cssRules[2].selectorText).toContain(".pseudo-hover .test")
+    expect(sheet.cssRules[3].selectorText).toContain(".test2:hover")
+    expect(sheet.cssRules[3].selectorText).toContain(".test2.pseudo-hover")
+    expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover .test2")
+
   })
 })

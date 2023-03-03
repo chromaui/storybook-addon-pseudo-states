@@ -67,8 +67,9 @@ export const rewriteStyleSheet = (
   sheet.__pseudoStatesRewritten = true
 
   try {
-    let index = 0
+    let index = -1
     for (const cssRule of sheet.cssRules) {
+      index++
       if (!("selectorText" in cssRule)) continue
       const styleRule = cssRule as CSSStyleRule
       if (matchOne.test(styleRule.selectorText)) {
@@ -77,7 +78,6 @@ export const rewriteStyleSheet = (
         sheet.insertRule(newRule, index)
         if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
       }
-      index++
       if (index > 1000) {
         warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
         break
