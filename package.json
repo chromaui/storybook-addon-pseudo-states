@@ -14,34 +14,34 @@
   },
   "author": "ghengeveld",
   "license": "MIT",
-  "main": "dist/cjs/preset.js",
-  "module": "dist/esm/preset.js",
+  "main": "dist/preset.js",
+  "module": "dist/preset.mjs",
   "files": [
     "dist/**/*",
     "README.md",
     "*.js"
   ],
   "scripts": {
-    "clean": "rimraf ./dist",
     "start": "concurrently \"yarn storybook --no-manager-cache --quiet\" \"yarn build:dist --watch\"",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "storybook dev -p 6006",
     "test": "jest src",
     "chromatic": "chromatic",
-    "build:dist": "babel ./src --out-dir ./dist/cjs && BABEL_ESM=\"true\" babel ./src --out-dir ./dist/esm",
-    "build:storybook": "build-storybook",
-    "prepublish": "yarn clean && yarn build:dist",
+    "build:dist": "tsup",
+    "build:storybook": "storybook build",
+    "prepublish": "yarn build:dist",
     "release": "auto shipit --base-branch=main"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.20.5",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
-    "@storybook/addon-docs": "^6.5.14",
-    "@storybook/builder-webpack5": "^6.5.14",
-    "@storybook/manager-webpack5": "^6.5.14",
-    "@storybook/react": "^6.5.14",
+    "@storybook/addon-docs": "^7.0.0-rc.4",
+    "@storybook/components": "^7.0.0-rc.4",
+    "@storybook/core-events": "^7.0.0-rc.4",
+    "@storybook/react": "^7.0.0-rc.4",
+    "@storybook/react-webpack5": "^7.0.0-rc.4",
+    "@storybook/types": "^7.0.0-rc.4",
     "auto": "^10.16.8",
     "babel-loader": "^9.1.0",
     "chromatic": "^6.12.0",
@@ -49,14 +49,15 @@
     "jest": "^27.5.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "rimraf": "^3.0.2"
+    "storybook": "^7.0.0-rc.4",
+    "tsup": "^6.6.3",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@storybook/manager-api": "^7.0.0-rc.4",
+    "@storybook/theming": "^7.0.0-rc.4"
   },
   "peerDependencies": {
-    "@storybook/addons": "^6.5.0",
-    "@storybook/api": "^6.5.0",
-    "@storybook/components": "^6.5.0",
-    "@storybook/core-events": "^6.5.0",
-    "@storybook/theming": "^6.5.0",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
