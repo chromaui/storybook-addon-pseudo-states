@@ -8,7 +8,7 @@ import {
 } from "@storybook/core-events"
 import { PSEUDO_STATES, type PSEUDO_STATE } from "./constants"
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
-import { StoryContext } from "@storybook/types"
+import { Decorator } from "@storybook/react"
 
 const channel = addons.getChannel()
 const shadowHosts = new Set<HTMLElement>()
@@ -37,15 +37,11 @@ const applyParameter = (
       add(rootElement, state as keyof PSEUDO_STATE)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
-      rootElement
-        .querySelectorAll(value)
-        .forEach((el) => add(el, state as keyof PSEUDO_STATE))
+      rootElement.querySelectorAll(value).forEach((el) => add(el, state as keyof PSEUDO_STATE))
     } else if (Array.isArray(value)) {
       // explicit selectors API - we have an array (of strings) recursively handle each one
       value.forEach((sel) =>
-        rootElement
-          .querySelectorAll(sel)
-          .forEach((el) => add(el, state as keyof PSEUDO_STATE))
+        rootElement.querySelectorAll(sel).forEach((el) => add(el, state as keyof PSEUDO_STATE))
       )
     }
   })
@@ -72,9 +68,9 @@ const updateShadowHost = (shadowHost: HTMLElement) => {
 }
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
-export const withPseudoState = (
-  StoryFn: () => string | Node,
-  { viewMode, parameters, id, globals: globalsArgs }: StoryContext
+export const withPseudoState: Decorator = (
+  StoryFn,
+  { viewMode, parameters, id, globals: globalsArgs }
 ) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
@@ -93,7 +89,9 @@ export const withPseudoState = (
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `storybook-root`)
+      const element = document.getElementById(
+        viewMode === "docs" ? `story--${id}` : `storybook-root`
+      )
       if (element !== null) applyParameter(element, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
@@ -102,10 +100,6 @@ export const withPseudoState = (
 
   return StoryFn()
 }
-
-type Sheet = {
-  __pseudoStatesRewritten?: boolean
-} & CSSStyleSheet
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {

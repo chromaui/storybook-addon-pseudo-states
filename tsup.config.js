@@ -1,11 +1,11 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup"
 
 export default defineConfig({
-  entry: ['src/**/!(*.d).(ts|tsx)'],
-  format: ['esm', 'cjs'],
+  entry: ["src/**/!(*.d).(ts|tsx)"],
+  format: ["esm", "cjs"],
   dts: true,
   clean: true,
   minify: false,
-  platform: 'browser',
-  external: ['react', 'react-dom']
-});
+  platform: "browser",
+  external: ["react", "react-dom", "@storybook/react"],
+})
