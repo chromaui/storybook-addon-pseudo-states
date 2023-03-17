@@ -93,7 +93,7 @@ export const withPseudoState = (
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
+      const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `storybook-root`)
       if (element !== null) applyParameter(element, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
