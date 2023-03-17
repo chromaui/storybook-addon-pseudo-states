@@ -6,42 +6,52 @@ import {
   STORY_RENDERED,
   UPDATE_GLOBALS,
 } from "@storybook/core-events"
-
-import { PSEUDO_STATES } from "./constants"
+import { PSEUDO_STATES, type PSEUDO_STATE } from "./constants"
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
+import { StoryContext } from "@storybook/types"
 
 const channel = addons.getChannel()
-const shadowHosts = new Set()
+const shadowHosts = new Set<HTMLElement>()
 
 // Drops any existing pseudo state classnames that carried over from a previously viewed story
 // before adding the new classnames. We do this the old-fashioned way, for IE compatibility.
-const applyClasses = (element, classnames) => {
+const applyClasses = (element: Element, classnames: string[] | Set<string>) => {
   element.className = element.className
     .split(" ")
-    .filter((classname) => classname && classname.indexOf("pseudo-") !== 0)
+    .filter((classname: string | string[]) => classname && classname.indexOf("pseudo-") !== 0)
     .concat(...classnames)
     .join(" ")
 }
 
-const applyParameter = (rootElement, parameter) => {
-  const map = new Map([[rootElement, new Set()]])
-  const add = (target, state) => map.set(target, new Set([...(map.get(target) || []), state]))
+const applyParameter = (
+  rootElement: Element,
+  parameter: { [s: string]: string | string[] } | ArrayLike<string | string[]>
+) => {
+  const map = new Map([[rootElement, new Set<keyof PSEUDO_STATE>()]])
+  const add = (target: Element, state: keyof PSEUDO_STATE) =>
+    map.set(target, new Set([...(map.get(target) || []), state]))
 
-  Object.entries(parameter || {}).forEach(([state, value]) => {
+  Object.entries<string[] | string>(parameter || {}).forEach(([state, value]) => {
     if (typeof value === "boolean") {
       // default API - applying pseudo class to root element.
-      add(rootElement, value && state)
+      add(rootElement, state as keyof PSEUDO_STATE)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
-      rootElement.querySelectorAll(value).forEach((el) => add(el, state))
+      rootElement
+        .querySelectorAll(value)
+        .forEach((el) => add(el, state as keyof PSEUDO_STATE))
     } else if (Array.isArray(value)) {
       // explicit selectors API - we have an array (of strings) recursively handle each one
-      value.forEach((sel) => rootElement.querySelectorAll(sel).forEach((el) => add(el, state)))
+      value.forEach((sel) =>
+        rootElement
+          .querySelectorAll(sel)
+          .forEach((el) => add(el, state as keyof PSEUDO_STATE))
+      )
     }
   })
 
   map.forEach((states, target) => {
-    const classnames = []
+    const classnames: string[] = []
     states.forEach((key) => PSEUDO_STATES[key] && classnames.push(`pseudo-${PSEUDO_STATES[key]}`))
     applyClasses(target, classnames)
   })
@@ -49,20 +59,23 @@ const applyParameter = (rootElement, parameter) => {
 
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
-const updateShadowHost = (shadowHost) => {
-  const classnames = new Set()
+const updateShadowHost = (shadowHost: HTMLElement) => {
+  const classnames = new Set<string>()
   for (let element = shadowHost.parentElement; element; element = element.parentElement) {
     if (!element.className) continue
     element.className
       .split(" ")
-      .filter((classname) => classname.indexOf("pseudo-") === 0)
-      .forEach((classname) => classnames.add(classname))
+      .filter((classname: string | string[]) => classname.indexOf("pseudo-") === 0)
+      .forEach((classname: string) => classnames.add(classname))
   }
   applyClasses(shadowHost, classnames)
 }
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
-export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: globalsArgs }) => {
+export const withPseudoState = (
+  StoryFn: () => string | Node,
+  { viewMode, parameters, id, globals: globalsArgs }: StoryContext
+) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
 
@@ -81,7 +94,7 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   useEffect(() => {
     const timeout = setTimeout(() => {
       const element = document.getElementById(viewMode === "docs" ? `story--${id}` : `root`)
-      applyParameter(element, globals || parameter)
+      if (element !== null) applyParameter(element, globals || parameter)
       shadowHosts.forEach(updateShadowHost)
     }, 0)
     return () => clearTimeout(timeout)
@@ -90,11 +103,18 @@ export const withPseudoState = (StoryFn, { viewMode, parameters, id, globals: gl
   return StoryFn()
 }
 
+type Sheet = {
+  __pseudoStatesRewritten?: boolean
+} & CSSStyleSheet
+
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
-const rewriteStyleSheets = (shadowRoot) => {
+const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = shadowRoot ? shadowRoot.styleSheets : document.styleSheets
+  // @ts-expect-error Property 'item' is missing in type 'CSSStyleSheet[]' but required in type 'StyleSheetList'
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  Array.from(styleSheets).forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
+  Array.from(styleSheets).forEach((sheet) => {
+    if (shadowRoot !== undefined) rewriteStyleSheet(sheet, shadowRoot, shadowHosts)
+  })
 }
 
 // Only track shadow hosts for the current story
@@ -105,19 +125,3 @@ channel.on(STORY_RENDERED, () => rewriteStyleSheets())
 
 // Reinitialize CSS enhancements every time a docs page is rendered
 channel.on(DOCS_RENDERED, () => rewriteStyleSheets())
-
-// IE doesn't support shadow DOM
-if (Element.prototype.attachShadow) {
-  // Monkeypatch the attachShadow method so we can handle pseudo styles inside shadow DOM
-  Element.prototype._attachShadow = Element.prototype.attachShadow
-  Element.prototype.attachShadow = function attachShadow(init) {
-    // Force "open" mode, so we can access the shadowRoot
-    const shadowRoot = this._attachShadow({ ...init, mode: "open" })
-    // Wait for it to render and apply its styles before rewriting them
-    requestAnimationFrame(() => {
-      rewriteStyleSheets(shadowRoot)
-      updateShadowHost(shadowRoot.host)
-    })
-    return shadowRoot
-  }
-}

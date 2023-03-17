@@ -5,6 +5,17 @@ export const TOOL_ID = `${ADDON_ID}/tool`
 // E.g. ::-webkit-scrollbar-thumb.pseudo-hover is not a valid selector
 export const EXCLUDED_PSEUDO_ELEMENTS = ["::-webkit-scrollbar-thumb"]
 
+export type PSEUDO_STATE = {
+  hover: string
+  active: string
+  focusVisible: string
+  focusWithin: string
+  focus: string
+  visited: string
+  link: string
+  target: string
+}
+
 // Dynamic pseudo-classes
 // @see https://www.w3.org/TR/2018/REC-selectors-3-20181106/#dynamic-pseudos
 export const PSEUDO_STATES = {
@@ -16,4 +27,4 @@ export const PSEUDO_STATES = {
   visited: "visited",
   link: "link",
   target: "target",
-}
+} satisfies PSEUDO_STATE

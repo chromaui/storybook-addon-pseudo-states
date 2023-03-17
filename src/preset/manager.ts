@@ -1,4 +1,4 @@
-import { addons, types } from "@storybook/addons"
+import { addons, types } from "@storybook/manager-api"
 
 import { ADDON_ID, TOOL_ID } from "../constants"
 import { PseudoStateTool } from "../PseudoStateTool"

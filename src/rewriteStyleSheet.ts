@@ -6,17 +6,17 @@ const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
 const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
 
 const warnings = new Set()
-const warnOnce = (message) => {
+const warnOnce = (message: string) => {
   if (warnings.has(message)) return
   // eslint-disable-next-line no-console
   console.warn(message)
   warnings.add(message)
 }
 
-const isExcludedPseudoElement = (selector, pseudoState) =>
+const isExcludedPseudoElement = (selector: string, pseudoState: string) =>
   EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
 
-const rewriteRule = (cssText, selectorText, shadowRoot) => {
+const rewriteRule = (cssText: string, selectorText: string, shadowRoot: ShadowRoot) => {
   return cssText.replace(
     selectorText,
     splitSelectors(selectorText)
@@ -28,15 +28,15 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
           return [selector]
         }
 
-        const states = []
-        const plainSelector = selector.replace(matchAll, (_, state) => {
+        const states: string[] = []
+        const plainSelector = selector.replace(matchAll, (_: string, state: string) => {
           states.push(state)
           return ""
         })
         const classSelector = states.reduce(
           (acc, state) =>
-            !isExcludedPseudoElement(selector, state) &&
-            acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`),
+            !isExcludedPseudoElement(selector, state) ?
+            acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`) : "",
           selector
         )
 
@@ -58,12 +58,19 @@ const rewriteRule = (cssText, selectorText, shadowRoot) => {
 
 // Rewrites the style sheet to add alternative selectors for any rule that targets a pseudo state.
 // A sheet can only be rewritten once, and may carry over between stories.
-export const rewriteStyleSheet = (sheet, shadowRoot, shadowHosts) => {
+export const rewriteStyleSheet = (
+  sheet: {
+    __pseudoStatesRewritten?: boolean
+  } & CSSStyleSheet,
+  shadowRoot: ShadowRoot,
+  shadowHosts: Set<Element>
+) => {
   if (sheet.__pseudoStatesRewritten) return
   sheet.__pseudoStatesRewritten = true
 
   try {
     let index = 0
+    // @ts-expect-error Property 'selectorText' does not exist on type 'CSSRule'
     for (const { cssText, selectorText } of sheet.cssRules) {
       if (matchOne.test(selectorText)) {
         const newRule = rewriteRule(cssText, selectorText, shadowRoot)
@@ -78,11 +85,13 @@ export const rewriteStyleSheet = (sheet, shadowRoot, shadowHosts) => {
       }
     }
   } catch (e) {
-    if (e.toString().includes("cssRules")) {
-      warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
-    } else {
-      // eslint-disable-next-line no-console
-      console.error(e, sheet.href)
+    if (e instanceof Error) {
+      if (e.toString().includes("cssRules")) {
+        warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
+      } else {
+        // eslint-disable-next-line no-console
+        console.error(e, sheet.href)
+      }
     }
   }
 }
