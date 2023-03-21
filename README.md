@@ -13,7 +13,7 @@ Toggle CSS pseudo states for your components in Storybook.
 
 ## Introduction
 
-This addon attempts to "force" your components' pseudo states. It rewrites all document stylesheets to add a class name selector to any rules that target a pseudo-class (`:hover`, `:focus`, etc.). The tool then allows you to toggle these class names on the story container (`#root`). Additionally, you can set the `pseudo` property on your story `parameters` to set a default value for each pseudo class. This makes it possible to test such states with [Chromatic](https://www.chromatic.com/).
+This addon attempts to "force" your components' pseudo states. It rewrites all document stylesheets to add a class name selector to any rules that target a pseudo-class (`:hover`, `:focus`, etc.). The tool then allows you to toggle these class names on the story container (`#root`) or any other root element you want (via the `rootElement` param). Additionally, you can set the `pseudo` property on your story `parameters` to set a default value for each pseudo class. This makes it possible to test such states with [Chromatic](https://www.chromatic.com/).
 
 ### Limitations
 
@@ -70,3 +70,22 @@ Buttons.parameters = {
 ```
 
 This accepts a single CSS selector (string), or an array of CSS selectors on which to enable that pseudo style.
+
+### Overriding default root element
+
+By default, we use storybook's `#root` element as the root element for all pseudo classes. you can override that and pass any selector you need.  
+This is handy when you need to render elements outside storybook's root element, e.g: Portals, Dialogs, Tooltips etc...
+
+For example, consider a `Dialog` component that inject itself to the document's `body` node.
+
+```jsx
+export const DialogButton = () => (
+  <Dialog>
+    <Button>Hover</Button>
+  </Dialog>
+)
+
+DialogButton.parameters = {
+  pseudo: { hover: true, rootElement: "body" },
+}
+```

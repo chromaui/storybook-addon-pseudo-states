@@ -21,12 +21,15 @@ const applyClasses = (element: Element, classnames: Set<string>) => {
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
-const applyParameter = (rootElement: Element, parameter: object) => {
+const applyParameter = (rootElement: Element, parameter: object = {}) => {
   const map = new Map([[rootElement, new Set<PseudoState>()]])
   const add = (target: Element, state: PseudoState) =>
-    map.set(target, new Set([...(map.get(target) || []), state]))
-
-  ;(Object.entries(parameter || {}) as [PseudoState, any]).forEach(([state, value]) => {
+    map.set(target, new Set([...(map.get(target) || []), state]));
+    
+    // filter out non state fields from the parameter object (i.e: the incoming rootElement prop)
+    const { rootElement: incomingRootElement, ...states } = parameter as Object
+    
+    (Object.entries(states || {}) as [PseudoState, any]).forEach(([state, value]) => {
     if (typeof value === "boolean") {
       // default API - applying pseudo class to root element.
       if (value) add(rootElement, state)
@@ -39,9 +42,9 @@ const applyParameter = (rootElement: Element, parameter: object) => {
     }
   })
 
-  map.forEach((states, target) => {
+  map.forEach((_states, target) => {
     const classnames = new Set<string>()
-    states.forEach((key) => PSEUDO_STATES[key] && classnames.add(`pseudo-${PSEUDO_STATES[key]}`))
+    _states.forEach((key) => PSEUDO_STATES[key] && classnames.add(`pseudo-${PSEUDO_STATES[key]}`))
     applyClasses(target, classnames)
   })
 }
@@ -69,6 +72,10 @@ export const withPseudoState: DecoratorFunction = (
   const { pseudo: globals } = globalsArgs
 
   const canvasElement = useMemo(() => {
+    if (parameter && parameter.rootElement) {
+      // rootElement was passed via story params
+      return document.querySelector(parameter.rootElement)
+    }
     if (viewMode === "docs") {
       return document.getElementById(`story--${id}`)
     }
