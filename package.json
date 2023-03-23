@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-pseudo-states",
-  "version": "1.15.2",
+  "version": "1.15.4",
   "description": "CSS pseudo states for Storybook",
   "keywords": [
     "storybook-addons",
