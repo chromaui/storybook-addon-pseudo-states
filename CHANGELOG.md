@@ -1,3 +1,20 @@
+# v1.15.5 (Thu Mar 23 2023)
+
+#### 🐛 Bug Fix
+
+- Remove optional chaining [#52](https://github.com/chromaui/storybook-addon-pseudo-states/pull/52) ([@filipw01](https://github.com/filipw01))
+
+#### ⚠️ Pushed to `main`
+
+- 1.15.4 ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 2
+
+- Filip Wachowiak ([@filipw01](https://github.com/filipw01))
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v1.15.2 (Tue Dec 13 2022)
 
 #### 🐛 Bug Fix

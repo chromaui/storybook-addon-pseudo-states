@@ -18,7 +18,10 @@ const options = Object.keys(PSEUDO_STATES).sort()
 
 export const PseudoStateTool = () => {
   const [{ pseudo }, updateGlobals] = useGlobals()
-  const isActive = useCallback((option) => pseudo?.[option] === true, [pseudo])
+  const isActive = useCallback((option) => {
+      if (!pseudo) return false
+      return pseudo[option] === true;
+  }, [pseudo])
 
   const toggleOption = useCallback(
     (option) => () => updateGlobals({ pseudo: { ...pseudo, [option]: !isActive(option) } }),
