@@ -1,6 +1,7 @@
 import React from "react"
 
 import { ShadowRoot } from "./ShadowRoot"
+import "./grid.css"
 
 export default {
   title: "Example/ShadowRoot",

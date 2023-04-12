@@ -1,4 +1,7 @@
+import React from "react"
+
 import { CustomElement } from "./CustomElement"
+import "./grid.css"
 
 export default {
   title: "Example/CustomElement",
