@@ -1,3 +1,25 @@
+# v2.0.0 (Wed Apr 12 2023)
+
+#### 💥 Breaking Change
+
+- Set Storybook deps to v7 [#68](https://github.com/chromaui/storybook-addon-pseudo-states/pull/68) ([@JReinhold](https://github.com/JReinhold))
+- Convert to TypeScript and upgrade to Storybook 7 [#47](https://github.com/chromaui/storybook-addon-pseudo-states/pull/47) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### 🐛 Bug Fix
+
+- Fix media queries breaking rules override [#58](https://github.com/chromaui/storybook-addon-pseudo-states/pull/58) ([@filipw01](https://github.com/filipw01))
+- Remove optional chaining in next [#70](https://github.com/chromaui/storybook-addon-pseudo-states/pull/70) ([@filipw01](https://github.com/filipw01) [@ghengeveld](https://github.com/ghengeveld) runner@fv-az491-751.is1xdb2m0b3ubcod5yxy40qnsg.phxx.internal.cloudapp.net [@kasperpeulen](https://github.com/kasperpeulen))
+
+#### Authors: 5
+
+- Filip Wachowiak ([@filipw01](https://github.com/filipw01))
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- ghengeveld (runner@fv-az491-751.is1xdb2m0b3ubcod5yxy40qnsg.phxx.internal.cloudapp.net)
+- Jeppe Reinhold ([@JReinhold](https://github.com/JReinhold))
+- Kasper Peulen ([@kasperpeulen](https://github.com/kasperpeulen))
+
+---
+
 # v1.15.5 (Thu Mar 23 2023)
 
 #### 🐛 Bug Fix
