@@ -74,6 +74,14 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover.pseudo-focus a")
   })
 
+  it("supports combined pseudo selectors with classes", () => {
+    const sheet = new Sheet(".hiOZqY:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY:hover")
+    expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY.pseudo-hover")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover .hiOZqY")
+  })
+
   it('supports ":host"', () => {
     const sheet = new Sheet(":host(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)

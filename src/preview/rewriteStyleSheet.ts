@@ -35,7 +35,7 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         })
         const classSelector = states.reduce((acc, state) => {
           if (isExcludedPseudoElement(selector, state)) return ""
-          return acc.replace(new RegExp(`(?<!Y):${state}`, "g"), `.pseudo-${state}`)
+          return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
         }, selector)
 
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
