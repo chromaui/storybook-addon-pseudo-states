@@ -1,3 +1,15 @@
+# v2.0.1 (Wed Apr 19 2023)
+
+#### 🐛 Bug Fix
+
+- Remove redundant regex negative lookbehind [#73](https://github.com/chromaui/storybook-addon-pseudo-states/pull/73) ([@filipw01](https://github.com/filipw01))
+
+#### Authors: 1
+
+- Filip Wachowiak ([@filipw01](https://github.com/filipw01))
+
+---
+
 # v2.0.0 (Wed Apr 12 2023)
 
 #### 💥 Breaking Change
