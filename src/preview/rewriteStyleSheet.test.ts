@@ -1,5 +1,5 @@
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
-
+new CSSMediaRule()
 class Rule {
   cssText: string
   selectorText?: string
@@ -96,18 +96,18 @@ describe("rewriteStyleSheet", () => {
 
   it("override correct rules with media query present", () => {
     const sheet = new Sheet(
-`@media (max-width: 790px) {
+      `@media (max-width: 790px) {
   .test {
     background-color: green;
   }
 }`,
-`.test {
+      `.test {
   background-color: blue;
 }`,
-`.test:hover {
+      `.test:hover {
   background-color: red;
 }`,
-`.test2:hover {
+      `.test2:hover {
   background-color: white;
 }`)
     rewriteStyleSheet(sheet)
@@ -119,6 +119,32 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[3].selectorText).toContain(".test2:hover")
     expect(sheet.cssRules[3].selectorText).toContain(".test2.pseudo-hover")
     expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover .test2")
+
+  })
+
+  it("override hover states that have a media query", () => {
+    const sheet = new Sheet(
+      `.test {
+  background-color: blue;
+}`,
+      `@media (hover: hover) and (pointer: fine) {
+  .test:hover {
+    background-color: red;
+  }
+}`,
+      `.test2:hover {
+  background-color: white;
+}`)
+    rewriteStyleSheet(sheet);
+    console.log(sheet.cssRules);
+    expect(sheet.cssRules[0].selectorText).toContain(".test")
+    expect(sheet.cssRules[1].cssText).toContain("@media (hover: hover) and (pointer: fine)")
+    expect(sheet.cssRules[1].cssText).toContain(".test:hover")
+    expect(sheet.cssRules[1].cssText).toContain(".test.pseudo-hover")
+    expect(sheet.cssRules[1].cssText).toContain(".pseudo-hover .test")
+    expect(sheet.cssRules[2].selectorText).toContain(".test2:hover")
+    expect(sheet.cssRules[2].selectorText).toContain(".test2.pseudo-hover")
+    expect(sheet.cssRules[2].selectorText).toContain(".pseudo-hover .test2")
 
   })
 })
