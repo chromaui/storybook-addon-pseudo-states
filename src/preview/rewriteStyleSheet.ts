@@ -54,6 +54,22 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
   )
 }
 
+const rewriteMediaRule = (sheet: CSSStyleSheet, mediaRule: CSSMediaRule): string | undefined => {
+  let newRule = mediaRule.cssText;
+  let hasPseudo = false;
+  for (const cssRule of mediaRule.cssRules) {
+    if (!("selectorText" in cssRule)) continue
+    const styleRule = cssRule as CSSStyleRule
+    if (matchOne.test(styleRule.selectorText)) {
+      const newSelector = rewriteRule(styleRule, undefined)
+      newRule = newRule.replace(styleRule.selectorText, newSelector);
+      hasPseudo = true;
+    }
+  }
+
+  return hasPseudo ? newRule : undefined;
+}
+
 // Rewrites the style sheet to add alternative selectors for any rule that targets a pseudo state.
 // A sheet can only be rewritten once, and may carry over between stories.
 export const rewriteStyleSheet = (
@@ -70,6 +86,14 @@ export const rewriteStyleSheet = (
     let index = -1
     for (const cssRule of sheet.cssRules) {
       index++
+      if ("media" in cssRule) {
+        const newRule = rewriteMediaRule(sheet, cssRule as unknown as CSSMediaRule);
+        if (newRule) {
+          sheet.deleteRule(index);
+          sheet.insertRule(newRule, index);
+        }
+        continue;
+      }
       if (!("selectorText" in cssRule)) continue
       const styleRule = cssRule as CSSStyleRule
       if (matchOne.test(styleRule.selectorText)) {
