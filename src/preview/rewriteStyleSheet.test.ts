@@ -33,6 +33,10 @@ class Sheet {
 }
 
 describe("rewriteStyleSheet", () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   it("adds alternative selector targeting the element directly", () => {
     const sheet = new Sheet("a:hover { color: red }")
     rewriteStyleSheet(sheet as any)
@@ -80,6 +84,19 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY:hover")
     expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY.pseudo-hover")
     expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover .hiOZqY")
+  })
+
+  it("modifies selectors until the limit is reached", () => {
+    jest.spyOn(console, "warn").mockImplementation(jest.fn())
+
+    const sheet = new Sheet("a:hover { color: red }", "button:hover { color: blue }")
+    rewriteStyleSheet(sheet as any, undefined, new Set(), 1)
+    expect(sheet.cssRules[0].selectorText).toContain("a.pseudo-hover")
+    expect(sheet.cssRules[1].selectorText).not.toContain("button.pseudo-hover")
+
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringMatching(/Reached maximum of 1 selector/)
+    )
   })
 
   it('supports ":host"', () => {

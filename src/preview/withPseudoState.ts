@@ -8,9 +8,10 @@ import {
 import { DecoratorFunction } from "@storybook/types"
 import { addons, useEffect, useMemo } from "@storybook/preview-api"
 
-import { PSEUDO_STATES, PseudoState } from "../constants"
+import { PSEUDO_STATES, PseudoState, SELECTOR_LIMIT_PARAMETER } from "../constants"
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
+let selectorLimit: number | undefined
 const channel = addons.getChannel()
 const shadowHosts = new Set<Element>()
 
@@ -99,6 +100,11 @@ export const withPseudoState: DecoratorFunction = (
     return () => clearTimeout(timeout)
   }, [canvasElement, globals, parameter])
 
+  selectorLimit =
+    parameter && typeof parameter[SELECTOR_LIMIT_PARAMETER] === "number"
+      ? parameter[SELECTOR_LIMIT_PARAMETER]
+      : undefined
+
   return StoryFn()
 }
 
@@ -106,7 +112,7 @@ export const withPseudoState: DecoratorFunction = (
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
+  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts, selectorLimit))
 }
 
 // Only track shadow hosts for the current story
