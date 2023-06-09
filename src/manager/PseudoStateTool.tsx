@@ -3,7 +3,7 @@ import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/comp
 import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
-import { PSEUDO_STATES } from "../constants"
+import { PARAM_KEY, PSEUDO_STATES } from "../constants"
 
 const LinkTitle = styled.span(({ active }) => ({
   color: active ? color.secondary : "inherit",
@@ -17,15 +17,19 @@ const LinkIcon = styled(Icons)(({ active }) => ({
 const options = Object.keys(PSEUDO_STATES).sort()
 
 export const PseudoStateTool = () => {
-  const [{ pseudo }, updateGlobals] = useGlobals()
-  const isActive = useCallback((option) => {
-      if (!pseudo) return false
-      return pseudo[option] === true;
-  }, [pseudo])
+  const [globals, updateGlobals] = useGlobals()
+  const myAddon = globals[PARAM_KEY]
+  const isActive = useCallback(
+    (option) => {
+      if (!myAddon) return false
+      return myAddon[option] === true
+    },
+    [myAddon]
+  )
 
   const toggleOption = useCallback(
-    (option) => () => updateGlobals({ pseudo: { ...pseudo, [option]: !isActive(option) } }),
-    [pseudo]
+    (option) => () => updateGlobals({ [PARAM_KEY]: { ...myAddon, [option]: !isActive(option) } }),
+    [myAddon]
   )
 
   return (
