@@ -1,3 +1,16 @@
+# v2.1.0 (Thu Jun 22 2023)
+
+#### 🚀 Enhancement
+
+- Add support for custom root element [#65](https://github.com/chromaui/storybook-addon-pseudo-states/pull/65) ([@sag1v](https://github.com/sag1v) [@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 2
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Sagiv ben giat ([@sag1v](https://github.com/sag1v))
+
+---
+
 # v2.0.2 (Thu Jun 22 2023)
 
 #### 🐛 Bug Fix
