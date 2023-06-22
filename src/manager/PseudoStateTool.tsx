@@ -5,31 +5,39 @@ import { styled, color } from "@storybook/theming"
 
 import { PARAM_KEY, PSEUDO_STATES } from "../constants"
 
-const LinkTitle = styled.span(({ active }) => ({
+const LinkTitle = styled.span<{ active?: boolean }>(({ active }) => ({
   color: active ? color.secondary : "inherit",
 }))
 
-const LinkIcon = styled(Icons)(({ active }) => ({
+const LinkIcon = styled(Icons)<{ active?: boolean }>(({ active }) => ({
   opacity: active ? 1 : 0,
   path: { fill: active ? color.secondary : "inherit" },
 }))
 
-const options = Object.keys(PSEUDO_STATES).sort()
+const options = Object.keys(PSEUDO_STATES).sort() as (keyof typeof PSEUDO_STATES)[]
 
 export const PseudoStateTool = () => {
   const [globals, updateGlobals] = useGlobals()
-  const myAddon = globals[PARAM_KEY]
+  const pseudo = globals[PARAM_KEY]
+
   const isActive = useCallback(
-    (option) => {
-      if (!myAddon) return false
-      return myAddon[option] === true
+    (option: keyof typeof PSEUDO_STATES) => {
+      if (!pseudo) return false
+      return pseudo[option] === true
     },
-    [myAddon]
+    [pseudo]
   )
 
   const toggleOption = useCallback(
-    (option) => () => updateGlobals({ [PARAM_KEY]: { ...myAddon, [option]: !isActive(option) } }),
-    [myAddon]
+    (option: keyof typeof PSEUDO_STATES) => () => {
+      updateGlobals({
+        [PARAM_KEY]: {
+          ...pseudo,
+          [option]: !isActive(option),
+        },
+      })
+    },
+    [pseudo]
   )
 
   return (
