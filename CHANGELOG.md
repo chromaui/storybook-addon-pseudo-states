@@ -1,3 +1,16 @@
+# v2.0.2 (Thu Jun 22 2023)
+
+#### 🐛 Bug Fix
+
+- Fix pseudo state selector menu for Storybook 7 [#78](https://github.com/chromaui/storybook-addon-pseudo-states/pull/78) ([@yasnbouz](https://github.com/yasnbouz) [@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 2
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Yassine El Bouziady ([@yasnbouz](https://github.com/yasnbouz))
+
+---
+
 # v2.0.1 (Wed Apr 19 2023)
 
 #### 🐛 Bug Fix
