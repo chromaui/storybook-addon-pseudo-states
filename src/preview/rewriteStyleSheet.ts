@@ -59,7 +59,8 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
 export const rewriteStyleSheet = (
   sheet: CSSStyleSheet,
   shadowRoot?: ShadowRoot,
-  shadowHosts?: Set<Element>
+  shadowHosts?: Set<Element>,
+  limit: number = 1000
 ) => {
   // @ts-expect-error
   if (sheet.__pseudoStatesRewritten) return
@@ -78,8 +79,8 @@ export const rewriteStyleSheet = (
         sheet.insertRule(newRule, index)
         if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
       }
-      if (index > 1000) {
-        warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
+      if (index >= limit - 1) {
+        warnOnce(`Reached maximum of ${limit} selectors per sheet, skipping the rest.`)
         break
       }
     }

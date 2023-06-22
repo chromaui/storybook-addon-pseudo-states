@@ -70,3 +70,18 @@ Buttons.parameters = {
 ```
 
 This accepts a single CSS selector (string), or an array of CSS selectors on which to enable that pseudo style.
+
+### Selector Limits
+
+For better performance, this addon will only look for pseudo-selectors in the first 1000 selectors of each stylesheet. However, this can be problematic when using frameworks such as Tailwind which may generate a large number of selectors. If necessary, you can configure the maximum number of selectors that will be checked for each stylesheet using the `selectorLimit` parameter:
+
+```jsx
+// in .storybook/preview.js
+export const parameters = {
+  pseudo: {
+    selectorLimit: 5000
+  }
+}
+```
+
+Use `selectorLimit: Infinity` to parse the entire stylesheet, but note that this may have a negative performance impact. Because modified stylesheets may be reused for multiple stories, this parameter should only be defined once in `.storybook/preview.js` rather than dynamically for individual stories.

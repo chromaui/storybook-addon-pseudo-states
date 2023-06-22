@@ -2,6 +2,10 @@ export const ADDON_ID = "storybook/pseudo-states"
 export const TOOL_ID = `${ADDON_ID}/tool`
 export const PARAM_KEY = "pseudo"
 
+// Parameter that controls the maximum number of selectors
+// that we look at (per sheet) to find pseudo-states
+export const SELECTOR_LIMIT_PARAMETER = "selectorLimit"
+
 // Pseudo-elements which are not allowed to have classes applied on them
 // E.g. ::-webkit-scrollbar-thumb.pseudo-hover is not a valid selector
 export const EXCLUDED_PSEUDO_ELEMENTS = ["::-webkit-scrollbar-thumb"]
