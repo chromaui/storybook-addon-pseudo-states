@@ -3,28 +3,40 @@ import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/comp
 import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
-import { PSEUDO_STATES } from "../constants"
+import { PARAM_KEY, PSEUDO_STATES } from "../constants"
 
-const LinkTitle = styled.span(({ active }) => ({
+const LinkTitle = styled.span<{ active?: boolean }>(({ active }) => ({
   color: active ? color.secondary : "inherit",
 }))
 
-const LinkIcon = styled(Icons)(({ active }) => ({
+const LinkIcon = styled(Icons)<{ active?: boolean }>(({ active }) => ({
   opacity: active ? 1 : 0,
   path: { fill: active ? color.secondary : "inherit" },
 }))
 
-const options = Object.keys(PSEUDO_STATES).sort()
+const options = Object.keys(PSEUDO_STATES).sort() as (keyof typeof PSEUDO_STATES)[]
 
 export const PseudoStateTool = () => {
-  const [{ pseudo }, updateGlobals] = useGlobals()
-  const isActive = useCallback((option) => {
+  const [globals, updateGlobals] = useGlobals()
+  const pseudo = globals[PARAM_KEY]
+
+  const isActive = useCallback(
+    (option: keyof typeof PSEUDO_STATES) => {
       if (!pseudo) return false
-      return pseudo[option] === true;
-  }, [pseudo])
+      return pseudo[option] === true
+    },
+    [pseudo]
+  )
 
   const toggleOption = useCallback(
-    (option) => () => updateGlobals({ pseudo: { ...pseudo, [option]: !isActive(option) } }),
+    (option: keyof typeof PSEUDO_STATES) => () => {
+      updateGlobals({
+        [PARAM_KEY]: {
+          ...pseudo,
+          [option]: !isActive(option),
+        },
+      })
+    },
     [pseudo]
   )
 
