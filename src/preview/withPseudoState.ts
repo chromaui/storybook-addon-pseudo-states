@@ -47,9 +47,9 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
     }
   })
 
-  map.forEach((_states, target) => {
+  map.forEach((states, target) => {
     const classnames = new Set<string>()
-    _states.forEach((key) => PSEUDO_STATES[key] && classnames.add(`pseudo-${PSEUDO_STATES[key]}`))
+    states.forEach((key) => PSEUDO_STATES[key] && classnames.add(`pseudo-${PSEUDO_STATES[key]}`))
     applyClasses(target, classnames)
   })
 }
