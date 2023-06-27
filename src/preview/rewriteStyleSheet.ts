@@ -3,7 +3,14 @@ import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
 const matchOne = new RegExp(`:(${pseudoStates.join("|")})`)
-const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
+
+const getMatcherAll = (state: string | null = null) => {
+  if (!state) {
+    state = pseudoStates.join("|")
+  }
+
+  return new RegExp(`:(${state})(?=(?::(${pseudoStates.join("|")}))*$|\\\))`, "g")
+}
 
 const warnings = new Set()
 const warnOnce = (message: string) => {
@@ -29,13 +36,13 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         }
 
         const states: string[] = []
-        const plainSelector = selector.replace(matchAll, (_, state) => {
+        const plainSelector = selector.replace(getMatcherAll(), (_, state) => {
           states.push(state)
           return ""
         })
         const classSelector = states.reduce((acc, state) => {
           if (isExcludedPseudoElement(selector, state)) return ""
-          return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
+          return acc.replace(getMatcherAll(state), `.pseudo-${state}`)
         }, selector)
 
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
