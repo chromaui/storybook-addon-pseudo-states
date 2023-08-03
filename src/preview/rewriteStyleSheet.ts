@@ -16,7 +16,12 @@ const warnOnce = (message: string) => {
 const isExcludedPseudoElement = (selector: string, pseudoState: string) =>
   EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
 
-const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: ShadowRoot) => {
+const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, { shadowRoot, pseudo }: {
+  shadowRoot?: ShadowRoot,
+  pseudo?: any
+}) => {
+
+
   return cssText.replace(
     selectorText,
     splitSelectors(selectorText)
@@ -46,7 +51,14 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           ? `:host(${states.map((s) => `.pseudo-${s}`).join("")}) ${plainSelector}`
           : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
 
-        return [selector, classSelector, ancestorSelector].filter(
+        const includeAncestor = !pseudo || states.some((state) => pseudo[state] === true)
+        const selectors = [
+          selector,
+          classSelector,
+          ...(includeAncestor ? [ancestorSelector] : [])
+        ]
+
+        return selectors.filter(
           (selector) => selector && !selector.includes(":not()")
         )
       })
@@ -59,13 +71,9 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
 export const rewriteStyleSheet = (
   sheet: CSSStyleSheet,
   shadowRoot?: ShadowRoot,
-  shadowHosts?: Set<Element>
+  shadowHosts?: Set<Element>,
+  pseudo: any
 ) => {
-  // @ts-expect-error
-  if(sheet.__pseudoStatesRewritten) return
-  // @ts-expect-error
-  sheet.__pseudoStatesRewritten = true
-
   try {
     let index = -1
     for(const cssRule of sheet.cssRules) {
@@ -73,7 +81,7 @@ export const rewriteStyleSheet = (
       if(!("selectorText" in cssRule)) continue
       const styleRule = cssRule as CSSStyleRule
       if(matchOne.test(styleRule.selectorText)) {
-        const newRule = rewriteRule(styleRule, shadowRoot)
+        const newRule = rewriteRule(styleRule, { shadowRoot, pseudo })
         sheet.deleteRule(index)
         sheet.insertRule(newRule, index)
         if(shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)

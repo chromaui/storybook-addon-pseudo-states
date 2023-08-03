@@ -133,9 +133,10 @@ export const withPseudoState: DecoratorFunction = (
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
+  const pseudo = channel.data.storyPrepared[0].parameters.pseudo
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if(shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
+  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts, pseudo))
 }
 
 // Only track shadow hosts for the current story
