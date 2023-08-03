@@ -7,7 +7,7 @@ const matchAll = new RegExp(`:(${pseudoStates.join("|")})`, "g")
 
 const warnings = new Set()
 const warnOnce = (message: string) => {
-  if (warnings.has(message)) return
+  if(warnings.has(message)) return
   // eslint-disable-next-line no-console
   console.warn(message)
   warnings.add(message)
@@ -21,10 +21,10 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
     selectorText,
     splitSelectors(selectorText)
       .flatMap((selector) => {
-        if (selector.includes(".pseudo-")) {
+        if(selector.includes(".pseudo-")) {
           return []
         }
-        if (!matchOne.test(selector)) {
+        if(!matchOne.test(selector)) {
           return [selector]
         }
 
@@ -34,11 +34,11 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           return ""
         })
         const classSelector = states.reduce((acc, state) => {
-          if (isExcludedPseudoElement(selector, state)) return ""
+          if(isExcludedPseudoElement(selector, state)) return ""
           return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
         }, selector)
 
-        if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
+        if(selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
           return [selector, classSelector].filter(Boolean)
         }
 
@@ -62,29 +62,29 @@ export const rewriteStyleSheet = (
   shadowHosts?: Set<Element>
 ) => {
   // @ts-expect-error
-  if (sheet.__pseudoStatesRewritten) return
+  if(sheet.__pseudoStatesRewritten) return
   // @ts-expect-error
   sheet.__pseudoStatesRewritten = true
 
   try {
     let index = -1
-    for (const cssRule of sheet.cssRules) {
+    for(const cssRule of sheet.cssRules) {
       index++
-      if (!("selectorText" in cssRule)) continue
+      if(!("selectorText" in cssRule)) continue
       const styleRule = cssRule as CSSStyleRule
-      if (matchOne.test(styleRule.selectorText)) {
+      if(matchOne.test(styleRule.selectorText)) {
         const newRule = rewriteRule(styleRule, shadowRoot)
         sheet.deleteRule(index)
         sheet.insertRule(newRule, index)
-        if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
+        if(shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
       }
-      if (index > 1000) {
+      if(index > 1000) {
         warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
         break
       }
     }
-  } catch (e) {
-    if (String(e).includes("cssRules")) {
+  } catch(e) {
+    if(String(e).includes("cssRules")) {
       warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
     } else {
       // eslint-disable-next-line no-console
