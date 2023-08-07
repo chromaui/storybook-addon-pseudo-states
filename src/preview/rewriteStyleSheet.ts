@@ -43,8 +43,8 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         }
 
         const ancestorSelector = shadowRoot
-          ? `:host(${states.map((s) => `.pseudo-${s}`).join("")}) ${plainSelector}`
-          : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
+          ? `:host(${states.map((s) => `.pseudo-ancestor-${s}`).join("")}) ${plainSelector}`
+          : `${states.map((s) => `.pseudo-ancestor-${s}`).join("")} ${plainSelector}`
 
         return [selector, classSelector, ancestorSelector].filter(
           (selector) => selector && !selector.includes(":not()")

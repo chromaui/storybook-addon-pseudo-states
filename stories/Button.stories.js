@@ -15,25 +15,25 @@ export const All = () => (
     <div>
       <Button>Normal</Button>
     </div>
-    <div className="pseudo-hover">
+    <div className="pseudo-ancestor-hover">
       <Button>Hover</Button>
     </div>
-    <div className="pseudo-focus">
+    <div className="pseudo-ancestor-focus">
       <Button>Focus</Button>
     </div>
-    <div className="pseudo-active">
+    <div className="pseudo-ancestor-active">
       <Button>Active</Button>
     </div>
-    <div className="pseudo-hover pseudo-focus">
+    <div className="pseudo-ancestor-hover pseudo-ancestor-focus">
       <Button>Hover Focus</Button>
     </div>
-    <div className="pseudo-hover pseudo-active">
+    <div className="pseudo-ancestor-hover pseudo-ancestor-active">
       <Button>Hover Active</Button>
     </div>
-    <div className="pseudo-focus pseudo-active">
+    <div className="pseudo-ancestor-focus pseudo-ancestor-active">
       <Button>Focus Active</Button>
     </div>
-    <div className="pseudo-hover pseudo-focus pseudo-active">
+    <div className="pseudo-ancestor-hover pseudo-ancestor-focus pseudo-ancestor-active">
       <Button>Hover Focus Active</Button>
     </div>
   </div>

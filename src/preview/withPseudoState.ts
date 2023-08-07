@@ -37,7 +37,7 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
   ;(Object.entries(parameter || {}) as [PseudoState, any]).forEach(([state, value]) => {
     if (typeof value === "boolean") {
       // default API - applying pseudo class to root element.
-      if (value) add(rootElement, state)
+      if (value) add(rootElement, `ancestor-${state}` as PseudoState)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
       rootElement.querySelectorAll(value).forEach((el) => add(el, state))
