@@ -86,3 +86,20 @@ DirectSelector.parameters = {
     active: ["[data-active]"],
   },
 }
+
+export const DirectSelectorParentDoesNotAffectDescendants = () => (
+  <>
+    <Button data-hover>Hovered 1</Button>
+
+    <div data-hover>
+      <Button>Not Hovered 1 </Button>
+      <Button>Not Hovered 2</Button>
+    </div>
+  </>
+)
+
+DirectSelectorParentDoesNotAffectDescendants.parameters = {
+  pseudo: {
+    hover: ["[data-hover]"],
+  },
+}
