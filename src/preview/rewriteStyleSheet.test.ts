@@ -71,7 +71,7 @@ describe("rewriteStyleSheet", () => {
     const sheet = new Sheet("a:hover:focus { color: red }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].selectorText).toContain("a.pseudo-hover.pseudo-focus")
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hove-allr.pseudo-focus-all a")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover-all.pseudo-focus-all a")
   })
 
   it("supports combined pseudo selectors with classes", () => {
