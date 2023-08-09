@@ -33,7 +33,7 @@ export const All = () => (
     <div className="pseudo-focus-all pseudo-active-all">
       <Button>Focus Active</Button>
     </div>
-    <div className="pseudo-hover-all pseudo-focus-all pseudo-ancestor-active">
+    <div className="pseudo-hover-all pseudo-focus-all pseudo-active-all">
       <Button>Hover Focus Active</Button>
     </div>
   </div>
