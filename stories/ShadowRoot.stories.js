@@ -15,25 +15,25 @@ export const All = () => (
     <div>
       <ShadowRoot label="Normal" />
     </div>
-    <div className="pseudo-hover">
+    <div className="pseudo-hover-all">
       <ShadowRoot label="Hover" />
     </div>
-    <div className="pseudo-focus">
+    <div className="pseudo-focus-all">
       <ShadowRoot label="Focus" />
     </div>
-    <div className="pseudo-active">
+    <div className="pseudo-active-all">
       <ShadowRoot label="Active" />
     </div>
-    <div className="pseudo-hover pseudo-focus">
+    <div className="pseudo-hover-all pseudo-focus-all">
       <ShadowRoot label="Hover Focus" />
     </div>
-    <div className="pseudo-hover pseudo-active">
+    <div className="pseudo-hover-all pseudo-active-all">
       <ShadowRoot label="Hover Active" />
     </div>
-    <div className="pseudo-focus pseudo-active">
+    <div className="pseudo-focus-all pseudo-active-all">
       <ShadowRoot label="Focus Active" />
     </div>
-    <div className="pseudo-hover pseudo-focus pseudo-active">
+    <div className="pseudo-hover-all pseudo-focus-all pseudo-active-all">
       <ShadowRoot label="Hover Focus Active" />
     </div>
   </div>

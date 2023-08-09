@@ -25,7 +25,10 @@ const shadowHosts = new Set<Element>()
 // Drops any existing pseudo state classnames that carried over from a previously viewed story
 // before adding the new classnames. We use forEach for IE compatibility.
 const applyClasses = (element: Element, classnames: Set<string>) => {
-  Object.values(PSEUDO_STATES).forEach((state) => element.classList.remove(`pseudo-${state}`))
+  Object.values(PSEUDO_STATES).forEach((state) => {
+    element.classList.remove(`pseudo-${state}`)
+    element.classList.remove(`pseudo-${state}-all`)
+  })
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
@@ -37,7 +40,7 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
   ;(Object.entries(parameter || {}) as [PseudoState, any]).forEach(([state, value]) => {
     if (typeof value === "boolean") {
       // default API - applying pseudo class to root element.
-      if (value) add(rootElement, `ancestor-${state}` as PseudoState)
+      if (value) add(rootElement, `${state}-all` as PseudoState)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
       rootElement.querySelectorAll(value).forEach((el) => add(el, state))
@@ -49,7 +52,14 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
 
   map.forEach((states, target) => {
     const classnames = new Set<string>()
-    states.forEach((key) => PSEUDO_STATES[key] && classnames.add(`pseudo-${PSEUDO_STATES[key]}`))
+    states.forEach((key) => {
+      const keyWithoutAll = key.replace('-all', '') as PseudoState
+      if (PSEUDO_STATES[key]) {
+        classnames.add(`pseudo-${PSEUDO_STATES[key]}`)
+      } else if (PSEUDO_STATES[keyWithoutAll]) {
+        classnames.add(`pseudo-${PSEUDO_STATES[keyWithoutAll]}-all`)
+      }
+    })
     applyClasses(target, classnames)
   })
 }

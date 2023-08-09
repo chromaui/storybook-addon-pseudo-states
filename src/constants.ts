@@ -17,15 +17,6 @@ export const PSEUDO_STATES = {
   visited: "visited",
   link: "link",
   target: "target",
-  "ancestor-hover": "ancestor-hover",
-  "ancestor-active": "ancestor-active",
-  "ancestor-focusVisible": "ancestor-focus-visible",
-  "ancestor-focusWithin": "ancestor-focus-within",
-  "ancestor-focus": "ancestor-focus", // must come after its alternatives
-  "ancestor-visited": "ancestor-visited",
-  "ancestor-link": "ancestor-link",
-  "ancestor-target": "ancestor-target",
-  
 } as const
 
 export type PseudoState = keyof typeof PSEUDO_STATES
