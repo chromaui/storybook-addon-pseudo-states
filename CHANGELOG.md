@@ -1,3 +1,15 @@
+# v2.1.1 (Mon Aug 21 2023)
+
+#### 🐛 Bug Fix
+
+- Selecting specific element also applies pseudo state to all its descendants alternate [#85](https://github.com/chromaui/storybook-addon-pseudo-states/pull/85) ([@JonathanKolnik](https://github.com/JonathanKolnik))
+
+#### Authors: 1
+
+- Jono Kolnik ([@JonathanKolnik](https://github.com/JonathanKolnik))
+
+---
+
 # v2.1.0 (Thu Jun 22 2023)
 
 #### 🚀 Enhancement
