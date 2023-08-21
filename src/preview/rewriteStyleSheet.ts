@@ -38,13 +38,19 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
         }, selector)
 
+        const classAllSelector = states.reduce((acc, state) => {
+          if (isExcludedPseudoElement(selector, state)) return ""
+          return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
+        }, selector)
+
+
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
-          return [selector, classSelector].filter(Boolean)
+          return [selector, classSelector, classAllSelector].filter(Boolean)
         }
 
         const ancestorSelector = shadowRoot
-          ? `:host(${states.map((s) => `.pseudo-${s}`).join("")}) ${plainSelector}`
-          : `${states.map((s) => `.pseudo-${s}`).join("")} ${plainSelector}`
+          ? `:host(${states.map((s) => `.pseudo-${s}-all`).join("")}) ${plainSelector}`
+          : `${states.map((s) => `.pseudo-${s}-all`).join("")} ${plainSelector}`
 
         return [selector, classSelector, ancestorSelector].filter(
           (selector) => selector && !selector.includes(":not()")

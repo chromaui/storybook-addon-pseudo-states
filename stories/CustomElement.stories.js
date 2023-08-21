@@ -18,25 +18,25 @@ export const All = () => (
     <div>
       <custom-element>Normal</custom-element>
     </div>
-    <div className="pseudo-hover">
+    <div className="pseudo-hover-all">
       <custom-element>Hover</custom-element>
     </div>
-    <div className="pseudo-focus">
+    <div className="pseudo-focus-all">
       <custom-element>Focus</custom-element>
     </div>
-    <div className="pseudo-active">
+    <div className="pseudo-active-all">
       <custom-element>Active</custom-element>
     </div>
-    <div className="pseudo-hover pseudo-focus">
+    <div className="pseudo-hover-all pseudo-focus-all">
       <custom-element>Hover Focus</custom-element>
     </div>
-    <div className="pseudo-hover pseudo-active">
+    <div className="pseudo-hover-all pseudo-active-all">
       <custom-element>Hover Active</custom-element>
     </div>
-    <div className="pseudo-focus pseudo-active">
+    <div className="pseudo-focus-all pseudo-active-all">
       <custom-element>Focus Active</custom-element>
     </div>
-    <div className="pseudo-hover pseudo-focus pseudo-active">
+    <div className="pseudo-hover-all pseudo-focus-all pseudo-active-all">
       <custom-element>Hover Focus Active</custom-element>
     </div>
   </div>

@@ -15,13 +15,13 @@ export const All = () => (
     <div>
       <Input defaultValue="Normal" />
     </div>
-    <div className="pseudo-hover">
+    <div className="pseudo-hover-all">
       <Input defaultValue="Hover" />
     </div>
-    <div className="pseudo-focus">
+    <div className="pseudo-focus-all">
       <Input defaultValue="Focus" />
     </div>
-    <div className="pseudo-hover pseudo-focus">
+    <div className="pseudo-hover-all pseudo-focus-all">
       <Input defaultValue="Hover Focus" />
     </div>
   </div>

@@ -15,25 +15,25 @@ export const All = () => (
     <div>
       <Button>Normal</Button>
     </div>
-    <div className="pseudo-hover">
+    <div className="pseudo-hover-all">
       <Button>Hover</Button>
     </div>
-    <div className="pseudo-focus">
+    <div className="pseudo-focus-all">
       <Button>Focus</Button>
     </div>
-    <div className="pseudo-active">
+    <div className="pseudo-active-all">
       <Button>Active</Button>
     </div>
-    <div className="pseudo-hover pseudo-focus">
+    <div className="pseudo-hover-all pseudo-focus-all">
       <Button>Hover Focus</Button>
     </div>
-    <div className="pseudo-hover pseudo-active">
+    <div className="pseudo-hover-all pseudo-active-all">
       <Button>Hover Active</Button>
     </div>
-    <div className="pseudo-focus pseudo-active">
+    <div className="pseudo-focus-all pseudo-active-all">
       <Button>Focus Active</Button>
     </div>
-    <div className="pseudo-hover pseudo-focus pseudo-active">
+    <div className="pseudo-hover-all pseudo-focus-all pseudo-active-all">
       <Button>Hover Focus Active</Button>
     </div>
   </div>
@@ -84,5 +84,22 @@ DirectSelector.parameters = {
     hover: ["[data-hover]", "[data-hover-group] button"],
     focus: "[data-focus]",
     active: ["[data-active]"],
+  },
+}
+
+export const DirectSelectorParentDoesNotAffectDescendants = () => (
+  <>
+    <Button id='foo'>Hovered 1</Button>
+
+    <div id='foo'>
+      <Button>Not Hovered 1 </Button>
+      <Button>Not Hovered 2</Button>
+    </div>
+  </>
+)
+
+DirectSelectorParentDoesNotAffectDescendants.parameters = {
+  pseudo: {
+    hover: ["#foo"],
   },
 }

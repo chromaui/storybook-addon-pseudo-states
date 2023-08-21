@@ -42,7 +42,7 @@ describe("rewriteStyleSheet", () => {
   it("adds alternative selector targeting an ancestor", () => {
     const sheet = new Sheet("a:hover { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover a")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover-all a")
   })
 
   it("does not add .pseudo-<class> to pseudo-class, which does not support classes", () => {
@@ -56,8 +56,8 @@ describe("rewriteStyleSheet", () => {
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].selectorText).toContain("a.pseudo-hover")
     expect(sheet.cssRules[0].selectorText).toContain("a.pseudo-focus")
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover a")
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-focus a")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover-all a")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-focus-all a")
   })
 
   it("keeps non-pseudo selectors as-is", () => {
@@ -71,7 +71,7 @@ describe("rewriteStyleSheet", () => {
     const sheet = new Sheet("a:hover:focus { color: red }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].selectorText).toContain("a.pseudo-hover.pseudo-focus")
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover.pseudo-focus a")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover-all.pseudo-focus-all a")
   })
 
   it("supports combined pseudo selectors with classes", () => {
@@ -79,13 +79,13 @@ describe("rewriteStyleSheet", () => {
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY:hover")
     expect(sheet.cssRules[0].selectorText).toContain(".hiOZqY.pseudo-hover")
-    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover .hiOZqY")
+    expect(sheet.cssRules[0].selectorText).toContain(".pseudo-hover-all .hiOZqY")
   })
 
   it('supports ":host"', () => {
     const sheet = new Sheet(":host(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(":host(:hover), :host(.pseudo-hover) { color: red }")
+    expect(sheet.cssRules[0].cssText).toEqual(":host(:hover), :host(.pseudo-hover), :host(.pseudo-hover-all) { color: red }")
   })
 
   it('supports ":not"', () => {
@@ -115,10 +115,10 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[1].selectorText).toContain(".test")
     expect(sheet.cssRules[2].selectorText).toContain(".test:hover")
     expect(sheet.cssRules[2].selectorText).toContain(".test.pseudo-hover")
-    expect(sheet.cssRules[2].selectorText).toContain(".pseudo-hover .test")
+    expect(sheet.cssRules[2].selectorText).toContain(".pseudo-hover-all .test")
     expect(sheet.cssRules[3].selectorText).toContain(".test2:hover")
     expect(sheet.cssRules[3].selectorText).toContain(".test2.pseudo-hover")
-    expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover .test2")
+    expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover-all .test2")
 
   })
 })
