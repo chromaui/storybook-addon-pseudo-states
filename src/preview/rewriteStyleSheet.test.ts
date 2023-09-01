@@ -1,9 +1,12 @@
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
 class Rule {
+  __pseudoStatesRewritten: boolean
   cssText: string
   selectorText?: string
+
   constructor(cssText: string) {
+    this.__pseudoStatesRewritten = false
     if (cssText.trim().startsWith("@")) {
       this.cssText = cssText
       return
@@ -16,19 +19,21 @@ class Rule {
   }
 }
 
-class Sheet {
+type CSSRule = CSSStyleRule & {
   __pseudoStatesRewritten: boolean
-  cssRules: CSSStyleRule[]
+}
+
+class Sheet {
+  cssRules: CSSRule[]
 
   constructor(...rules: string[]) {
-    this.__pseudoStatesRewritten = false
-    this.cssRules = rules.map((cssText) => new Rule(cssText) as CSSStyleRule)
+    this.cssRules = rules.map((cssText) => new Rule(cssText) as CSSRule)
   }
   deleteRule(index: number) {
     this.cssRules.splice(index, 1)
   }
   insertRule(cssText: string, index: number) {
-    this.cssRules.splice(index, 0, new Rule(cssText) as CSSStyleRule)
+    this.cssRules.splice(index, 0, new Rule(cssText) as CSSRule)
   }
 }
 
@@ -85,7 +90,9 @@ describe("rewriteStyleSheet", () => {
   it('supports ":host"', () => {
     const sheet = new Sheet(":host(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(":host(:hover), :host(.pseudo-hover), :host(.pseudo-hover-all) { color: red }")
+    expect(sheet.cssRules[0].cssText).toEqual(
+      ":host(:hover), :host(.pseudo-hover), :host(.pseudo-hover-all) { color: red }"
+    )
   })
 
   it('supports ":not"', () => {
@@ -96,21 +103,22 @@ describe("rewriteStyleSheet", () => {
 
   it("override correct rules with media query present", () => {
     const sheet = new Sheet(
-`@media (max-width: 790px) {
-  .test {
-    background-color: green;
-  }
-}`,
-`.test {
-  background-color: blue;
-}`,
-`.test:hover {
-  background-color: red;
-}`,
-`.test2:hover {
-  background-color: white;
-}`)
-    rewriteStyleSheet(sheet)
+      `@media (max-width: 790px) {
+        .test {
+          background-color: green;
+        }
+      }`,
+      `.test {
+        background-color: blue;
+      }`,
+      `.test:hover {
+        background-color: red;
+      }`,
+      `.test2:hover {
+        background-color: white;
+      }`
+    )
+    rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].cssText).toContain("@media (max-width: 790px)")
     expect(sheet.cssRules[1].selectorText).toContain(".test")
     expect(sheet.cssRules[2].selectorText).toContain(".test:hover")
@@ -119,6 +127,5 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[3].selectorText).toContain(".test2:hover")
     expect(sheet.cssRules[3].selectorText).toContain(".test2.pseudo-hover")
     expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover-all .test2")
-
   })
 })
