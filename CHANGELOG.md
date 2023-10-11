@@ -1,3 +1,16 @@
+# v2.1.2 (Wed Oct 11 2023)
+
+#### 🐛 Bug Fix
+
+- Check for rewritten pseudo states at rule-level rather than sheet-level [#87](https://github.com/chromaui/storybook-addon-pseudo-states/pull/87) ([@ghengeveld](https://github.com/ghengeveld) [@chromatic-support](https://github.com/chromatic-support))
+
+#### Authors: 2
+
+- [@chromatic-support](https://github.com/chromatic-support)
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v2.1.1 (Mon Aug 21 2023)
 
 #### 🐛 Bug Fix
