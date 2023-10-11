@@ -43,7 +43,6 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
         }, selector)
 
-
         if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
           return [selector, classSelector, classAllSelector].filter(Boolean)
         }
@@ -67,16 +66,14 @@ export const rewriteStyleSheet = (
   shadowRoot?: ShadowRoot,
   shadowHosts?: Set<Element>
 ) => {
-  // @ts-expect-error
-  if (sheet.__pseudoStatesRewritten) return
-  // @ts-expect-error
-  sheet.__pseudoStatesRewritten = true
-
   try {
     let index = -1
     for (const cssRule of sheet.cssRules) {
       index++
-      if (!("selectorText" in cssRule)) continue
+
+      // @ts-expect-error
+      if (cssRule.__pseudoStatesRewritten || !("selectorText" in cssRule)) continue
+
       const styleRule = cssRule as CSSStyleRule
       if (matchOne.test(styleRule.selectorText)) {
         const newRule = rewriteRule(styleRule, shadowRoot)
@@ -84,6 +81,10 @@ export const rewriteStyleSheet = (
         sheet.insertRule(newRule, index)
         if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
       }
+
+      // @ts-expect-error
+      cssRule.__pseudoStatesRewritten = true
+
       if (index > 1000) {
         warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
         break

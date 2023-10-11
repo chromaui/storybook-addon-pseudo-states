@@ -1,6 +1,9 @@
 /* eslint-env browser */
 import {
   DOCS_RENDERED,
+  FORCE_REMOUNT,
+  FORCE_RE_RENDER,
+  GLOBALS_UPDATED,
   STORY_CHANGED,
   STORY_RENDERED,
   UPDATE_GLOBALS,
@@ -53,7 +56,7 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
   map.forEach((states, target) => {
     const classnames = new Set<string>()
     states.forEach((key) => {
-      const keyWithoutAll = key.replace('-all', '') as PseudoState
+      const keyWithoutAll = key.replace("-all", "") as PseudoState
       if (PSEUDO_STATES[key]) {
         classnames.add(`pseudo-${PSEUDO_STATES[key]}`)
       } else if (PSEUDO_STATES[keyWithoutAll]) {
@@ -153,6 +156,9 @@ channel.on(STORY_CHANGED, () => shadowHosts.clear())
 
 // Reinitialize CSS enhancements every time the story changes
 channel.on(STORY_RENDERED, () => rewriteStyleSheets())
+channel.on(GLOBALS_UPDATED, () => rewriteStyleSheets())
+channel.on(FORCE_RE_RENDER, () => rewriteStyleSheets())
+channel.on(FORCE_REMOUNT, () => rewriteStyleSheets())
 
 // Reinitialize CSS enhancements every time a docs page is rendered
 channel.on(DOCS_RENDERED, () => rewriteStyleSheets())
