@@ -128,4 +128,16 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[3].selectorText).toContain(".test2.pseudo-hover")
     expect(sheet.cssRules[3].selectorText).toContain(".pseudo-hover-all .test2")
   })
+
+  it("supports classnames with a colon followed by state", () => {
+    const sheet = new Sheet(".focus:hover:border-red:hover:focus {border: red;}")
+    rewriteStyleSheet(sheet)
+    expect(sheet.cssRules[0].selectorText).toContain(".focus:hover:border-red:hover:focus")
+    expect(sheet.cssRules[0].selectorText).toContain(
+      ".focus:hover:border-red.pseudo-hover.pseudo-focus"
+    )
+    expect(sheet.cssRules[0].selectorText).toContain(
+      ".pseudo-hover.pseudo-focus .focus:hover:border-red"
+    )
+  })
 })
