@@ -5,7 +5,8 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
     "../",
-    "@chromaui/addon-visual-tests"
+    "@chromaui/addon-visual-tests",
+    "@storybook/addon-webpack5-compiler-swc",
   ],
   framework: {
     name: "@storybook/react-webpack5",
