@@ -67,28 +67,10 @@ export const rewriteStyleSheet = (
   shadowHosts?: Set<Element>
 ) => {
   try {
-    let index = -1
-    for (const cssRule of sheet.cssRules) {
-      index++
-
-      // @ts-expect-error
-      if (cssRule.__pseudoStatesRewritten || !("selectorText" in cssRule)) continue
-
-      const styleRule = cssRule as CSSStyleRule
-      if (matchOne.test(styleRule.selectorText)) {
-        const newRule = rewriteRule(styleRule, shadowRoot)
-        sheet.deleteRule(index)
-        sheet.insertRule(newRule, index)
-        if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
-      }
-
-      // @ts-expect-error
-      cssRule.__pseudoStatesRewritten = true
-
-      if (index > 1000) {
-        warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
-        break
-      }
+    const maximumRulesToProcess = 1000
+    const count = rewriteRuleContainer(sheet, maximumRulesToProcess, shadowRoot, shadowHosts);
+    if (count >= maximumRulesToProcess) {
+      warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
     }
   } catch (e) {
     if (String(e).includes("cssRules")) {
@@ -98,4 +80,44 @@ export const rewriteStyleSheet = (
       console.error(e, sheet.href)
     }
   }
+}
+
+const rewriteRuleContainer = (
+  ruleContainer: CSSStyleSheet | CSSGroupingRule,
+  abortLimit: number,
+  shadowRoot?: ShadowRoot,
+  shadowHosts?: Set<Element>
+): number => {
+  let count = 0
+  let index = -1
+  for (const cssRule of ruleContainer.cssRules) {
+    index++
+
+    // @ts-expect-error
+    if (cssRule.__pseudoStatesRewritten) continue
+
+    if ("cssRules" in cssRule && (cssRule.cssRules as CSSRuleList).length) {
+      count += rewriteRuleContainer(cssRule as CSSGroupingRule, abortLimit - count, shadowRoot, shadowHosts)
+    } else {
+      if (!("selectorText" in cssRule)) continue
+      const styleRule = cssRule as CSSStyleRule
+      if (matchOne.test(styleRule.selectorText)) {
+        const newRule = rewriteRule(styleRule, shadowRoot)
+        ruleContainer.deleteRule(index)
+        ruleContainer.insertRule(newRule, index)
+        if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
+      }
+
+      count++
+    }
+
+    // @ts-expect-error
+    cssRule.__pseudoStatesRewritten = true
+
+    if (count >= abortLimit) {
+      break
+    }
+  }
+
+  return count
 }
