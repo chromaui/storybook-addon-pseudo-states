@@ -1,18 +1,14 @@
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
 class Rule {
-  __pseudoStatesRewritten: boolean
-  cssText: string
+  __processed = false
+  __pseudoStatesRewrittenCount = 0
   selectorText?: string
 
-  constructor(cssText: string) {
-    this.__pseudoStatesRewritten = false
-    if (cssText.trim().startsWith("@")) {
-      this.cssText = cssText
-      return
+  constructor(readonly cssText: string) {
+    if (!cssText.trim().startsWith("@")) {
+      this.selectorText = cssText.slice(0, cssText.indexOf(" {"))
     }
-    this.cssText = cssText
-    this.selectorText = cssText.slice(0, cssText.indexOf(" {"))
   }
   toString() {
     return this.cssText
@@ -20,7 +16,8 @@ class Rule {
 }
 
 type CSSRule = CSSStyleRule & {
-  __pseudoStatesRewritten: boolean
+  __processed: boolean
+  __pseudoStatesRewrittenCount: number
 }
 
 class Sheet {

@@ -148,7 +148,9 @@ export const withPseudoState: DecoratorFunction = (
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
+  let rewroteStyles = false
+  styleSheets.forEach((sheet) => rewroteStyles = rewriteStyleSheet(sheet, shadowRoot) || rewroteStyles)
+  if (rewroteStyles && shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
 }
 
 // Only track shadow hosts for the current story
@@ -175,7 +177,7 @@ if (Element.prototype.attachShadow) {
     // Wait for it to render and apply its styles before rewriting them
     requestAnimationFrame(() => {
       rewriteStyleSheets(shadowRoot)
-      updateShadowHost(shadowRoot.host)
+      if (shadowHosts.has(shadowRoot.host)) updateShadowHost(shadowRoot.host)
     })
     return shadowRoot
   }
