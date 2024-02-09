@@ -149,7 +149,9 @@ const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
   let rewroteStyles = false
-  styleSheets.forEach((sheet) => rewroteStyles = rewriteStyleSheet(sheet, shadowRoot) || rewroteStyles)
+  styleSheets.forEach((sheet) => {
+    if (rewriteStyleSheet(sheet, shadowRoot)) rewroteStyles = true
+  })
   if (rewroteStyles && shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
 }
 
