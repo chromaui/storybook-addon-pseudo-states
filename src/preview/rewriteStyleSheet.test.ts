@@ -83,6 +83,26 @@ class Sheet {
 }
 
 describe("rewriteStyleSheet", () => {
+  it("returns true if a rule was rewritten", () => {
+    const sheet = new Sheet("a:hover { color: red }")
+    expect(rewriteStyleSheet(sheet as any)).toEqual(true)
+  })
+
+  it("returns true if a nested rule was rewritten", () => {
+    const sheet = new Sheet("@layer foo { a:hover { color: red } }")
+    expect(rewriteStyleSheet(sheet as any)).toEqual(true)
+  })
+
+  it("returns false if no rules were rewritten", () => {
+    const sheet = new Sheet(`
+      a { color: red }
+      @layer foo {
+        a { color: red }
+      }
+    `)
+    expect(rewriteStyleSheet(sheet as any)).toEqual(false)
+  })
+
   it("does not create additional rules", () => {
     const sheet = new Sheet("a:hover { color: red }")
     rewriteStyleSheet(sheet as any)
@@ -141,11 +161,13 @@ describe("rewriteStyleSheet", () => {
     expect(selectors).toContain("a#id")
   })
 
-  it("removes pre-existing alternative selectors", () => {
-    const sheet = new Sheet("a.pseudo-focus, a:hover { color: red }")
+  it("does not duplicate selectors on subsequent rewrites", () => {
+    const sheet = new Sheet("a:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
     rewriteStyleSheet(sheet as any)
     const selectors = sheet.cssRules[0].getSelectors()
-    expect(selectors).not.toContain("a.pseudo-focus")
+    selectors.splice(selectors.indexOf("a.pseudo-hover"), 1)
+    expect(selectors).not.toContain("a.pseudo-hover")
   })
 
   it("supports combined pseudo selectors", () => {
@@ -295,5 +317,29 @@ describe("rewriteStyleSheet", () => {
     const media = layer.cssRules[1] as GroupingRule
     const innerLayer = media.cssRules[0] as GroupingRule
     expect(innerLayer.cssRules[0].getSelectors()).toContain("test.pseudo-hover")
+  })
+
+  console.warn = () => {} // suppress printing warnings about rewrite limit
+  
+  it("can rewrite 1000 rules in a sheet", () => {
+    const sheet = new Sheet(Array(1000).fill("a:hover { color: red }").join("\n"))
+    rewriteStyleSheet(sheet as any)
+    for (let i = 0; i < 1000; i++) {
+      expect(sheet.cssRules[i].getSelectors()).toContain("a.pseudo-hover")
+    }
+  })
+  
+  it("skips rewriting rules beyond the first 1000", () => {
+    const sheet = new Sheet(Array(1001).fill("a:hover { color: red }").join("\n"))
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[1000].getSelectors()).not.toContain("a.pseudo-hover")
+  })
+  
+  it("can rewrite 1000 rules in a sheet with group rules", () => {
+    const sheet = new Sheet(Array(1000).fill("@layer foo { a:hover { color: red } }").join("\n"))
+    rewriteStyleSheet(sheet as any)
+    for (let i = 0; i < 1000; i++) {
+      expect((sheet.cssRules[i] as GroupingRule).cssRules[0].getSelectors()).toContain("a.pseudo-hover")
+    }
   })
 })
