@@ -83,6 +83,18 @@ class Sheet {
 }
 
 describe("rewriteStyleSheet", () => {
+  it("does not create additional rules", () => {
+    const sheet = new Sheet("a:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules.length).toEqual(1)
+  })
+
+  it("does not remove original selector", () => {
+    const sheet = new Sheet("a:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors()).toContain("a:hover")
+  })
+
   it("adds alternative selector targeting the element directly", () => {
     const sheet = new Sheet("a:hover { color: red }")
     rewriteStyleSheet(sheet as any)
@@ -95,6 +107,16 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all a")
   })
 
+  it("does not add unexpected selectors", () => {
+    const sheet = new Sheet("a:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors().filter(x => ![
+      "a:hover",
+      "a.pseudo-hover",
+      ".pseudo-hover-all a"
+    ].includes(x))).toEqual([])
+  })
+
   it("does not add .pseudo-<class> to pseudo-class, which does not support classes", () => {
     const sheet = new Sheet("::-webkit-scrollbar-thumb:hover { border-color: transparent; }")
     rewriteStyleSheet(sheet as any)
@@ -104,46 +126,76 @@ describe("rewriteStyleSheet", () => {
   it("adds alternative selector for each pseudo selector", () => {
     const sheet = new Sheet("a:hover, a:focus { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].getSelectors()).toContain("a.pseudo-hover")
-    expect(sheet.cssRules[0].getSelectors()).toContain("a.pseudo-focus")
-    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all a")
-    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-focus-all a")
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("a.pseudo-hover")
+    expect(selectors).toContain("a.pseudo-focus")
+    expect(selectors).toContain(".pseudo-hover-all a")
+    expect(selectors).toContain(".pseudo-focus-all a")
   })
 
   it("keeps non-pseudo selectors as-is", () => {
     const sheet = new Sheet("a.class, a:hover, a:focus, a#id { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].getSelectors()).toContain("a.class")
-    expect(sheet.cssRules[0].getSelectors()).toContain("a#id")
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("a.class")
+    expect(selectors).toContain("a#id")
+  })
+
+  it("removes pre-existing alternative selectors", () => {
+    const sheet = new Sheet("a.pseudo-focus, a:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).not.toContain("a.pseudo-focus")
   })
 
   it("supports combined pseudo selectors", () => {
     const sheet = new Sheet("a:hover:focus { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].getSelectors()).toContain("a.pseudo-hover.pseudo-focus")
-    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all.pseudo-focus-all a")
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("a.pseudo-hover.pseudo-focus")
+    expect(selectors).toContain(".pseudo-hover-all.pseudo-focus-all a")
   })
 
   it("supports combined pseudo selectors with classes", () => {
     const sheet = new Sheet(".hiOZqY:hover { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].getSelectors()).toContain(".hiOZqY:hover")
-    expect(sheet.cssRules[0].getSelectors()).toContain(".hiOZqY.pseudo-hover")
-    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all .hiOZqY")
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(".hiOZqY:hover")
+    expect(selectors).toContain(".hiOZqY.pseudo-hover")
+    expect(selectors).toContain(".pseudo-hover-all .hiOZqY")
   })
 
   it('supports ":host"', () => {
     const sheet = new Sheet(":host(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(
-      ":host(:hover), :host(.pseudo-hover), :host(.pseudo-hover-all) { color: red }"
-    )
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(:hover)")
+    expect(selectors).toContain(":host(.pseudo-hover)")
+    expect(selectors).toContain(":host(.pseudo-hover-all)")
+  })
+
+  it('supports ":host" with classes', () => {
+    const sheet = new Sheet(":host(.a:hover, .b) { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(.a:hover, .b)")
+    expect(selectors).toContain(":host(.a.pseudo-hover, .b)")
+    expect(selectors).toContain(":host(.a.pseudo-hover-all, .b)")
+  })
+
+  it('supports "::slotted"', () => {
+    const sheet = new Sheet("::slotted(:hover) { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("::slotted(:hover)")
+    expect(selectors).toContain("::slotted(.pseudo-hover)")
+    expect(selectors).toContain("::slotted(.pseudo-hover-all)")
   })
 
   it('supports ":not"', () => {
     const sheet = new Sheet(":not(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(":not(:hover), :not(.pseudo-hover) { color: red }")
+    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover)")
   })
 
   it("override correct rules with media query present", () => {
@@ -172,5 +224,76 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[3].getSelectors()).toContain(".test2:hover")
     expect(sheet.cssRules[3].getSelectors()).toContain(".test2.pseudo-hover")
     expect(sheet.cssRules[3].getSelectors()).toContain(".pseudo-hover-all .test2")
+  })
+
+  it('rewrites rules inside "@media"', () => {
+    const sheet = new Sheet(
+      `@media (max-width: 790px) {
+        test:hover {
+          background-color: green;
+        }
+      }`
+    )
+    rewriteStyleSheet(sheet as any)
+    const selectors = (sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()
+    expect(selectors).toContain("test:hover")
+    expect(selectors).toContain("test.pseudo-hover")
+    expect(selectors).toContain(".pseudo-hover-all test")
+  })
+
+  it('rewrites rules inside "@layer"', () => {
+    const sheet = new Sheet(
+      `@layer base {
+        test:hover {
+          background-color: green;
+        }
+      }`
+    )
+    rewriteStyleSheet(sheet as any)
+    const selectors = (sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()
+    expect(selectors).toContain("test:hover")
+    expect(selectors).toContain("test.pseudo-hover")
+    expect(selectors).toContain(".pseudo-hover-all test")
+  })
+
+  it('handles multiple group rules', () => {
+    const sheet = new Sheet(
+      `@media (max-width: 790px) {
+        test:hover {
+          background-color: green;
+        }
+      }
+      @media (max-width: 100px) {
+        test2:hover {
+          background-color: red;
+        }
+      }`
+    )
+    rewriteStyleSheet(sheet as any)
+    expect((sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()).toContain("test.pseudo-hover")
+    expect((sheet.cssRules[1] as GroupingRule).cssRules[0].getSelectors()).toContain("test2.pseudo-hover")
+  })
+
+  it("handles nested group rules", () => {
+    const sheet = new Sheet(
+      `@layer base {
+        test:hover {
+          background-color: green;
+        }
+        @media (max-width: 790px) {
+          @layer base {
+            test:hover {
+              background-color: green;
+            }
+          }
+        }
+      }`
+    )
+    rewriteStyleSheet(sheet as any)
+    const layer = sheet.cssRules[0] as GroupingRule
+    expect(layer.cssRules[0].getSelectors()).toContain("test.pseudo-hover")
+    const media = layer.cssRules[1] as GroupingRule
+    const innerLayer = media.cssRules[0] as GroupingRule
+    expect(innerLayer.cssRules[0].getSelectors()).toContain("test.pseudo-hover")
   })
 })
