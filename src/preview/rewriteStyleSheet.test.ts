@@ -1,36 +1,80 @@
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 
-class Rule {
-  __processed = false
-  __pseudoStatesRewrittenCount = 0
+function splitRules(cssText: string): string[] {
+  let ruleStart: number | undefined
+  let depth = 0
+  const rules: string[] = []
+  const chars = [...cssText]
+  chars.forEach((c, i) => {
+    if (c === '{') {
+      depth++
+    } else if (c === '}') {
+      if (--depth === 0) {
+        rules.push(cssText.substring(ruleStart!, i + 1))
+        ruleStart = undefined
+      }
+    } else if (ruleStart === undefined && c !== ' ' && c !== '\n') {
+      ruleStart = i
+    }
+  });
+  return rules
+}
+
+abstract class Rule {
+  constructor(readonly cssText: string) {}
+
   selectorText?: string
 
-  constructor(readonly cssText: string) {
-    if (!cssText.trim().startsWith("@")) {
-      this.selectorText = cssText.slice(0, cssText.indexOf(" {"))
-    }
+  static parse(cssText: string): Rule {
+    return cssText.trim().startsWith("@")
+      ? new GroupingRule(cssText)
+      : new StyleRule(cssText)
   }
   toString() {
     return this.cssText
   }
 }
 
-type CSSRule = CSSStyleRule & {
-  __processed: boolean
-  __pseudoStatesRewrittenCount: number
+class StyleRule extends Rule {
+  __processed = false
+  __pseudoStatesRewrittenCount = 0
+
+  constructor(cssText: string) {
+    super(cssText)
+    if (cssText.trim().startsWith("@")) {
+      throw new Error('StyleRule cannot start with @')
+    }
+    this.selectorText = cssText.substring(0, cssText.indexOf(" {"))
+  }
 }
 
-class Sheet {
-  cssRules: CSSRule[]
+class GroupingRule extends Rule {
+  cssRules: Rule[]
 
-  constructor(...rules: string[]) {
-    this.cssRules = rules.map((cssText) => new Rule(cssText) as CSSRule)
+  constructor(cssText: string) {
+    super(cssText)
+    const innerCssText = cssText.substring(cssText.indexOf("{") + 1, cssText.lastIndexOf("}"))
+    this.cssRules = splitRules(innerCssText).map(x => Rule.parse(x))
   }
   deleteRule(index: number) {
     this.cssRules.splice(index, 1)
   }
   insertRule(cssText: string, index: number) {
-    this.cssRules.splice(index, 0, new Rule(cssText) as CSSRule)
+    this.cssRules.splice(index, 0, Rule.parse(cssText))
+  }
+}
+
+class Sheet {
+  cssRules: Rule[]
+
+  constructor(cssText: string) {
+    this.cssRules = splitRules(cssText).map(x => Rule.parse(x))
+  }
+  deleteRule(index: number) {
+    this.cssRules.splice(index, 1)
+  }
+  insertRule(cssText: string, index: number) {
+    this.cssRules.splice(index, 0, Rule.parse(cssText))
   }
 }
 
@@ -104,14 +148,14 @@ describe("rewriteStyleSheet", () => {
         .test {
           background-color: green;
         }
-      }`,
-      `.test {
+      }
+      .test {
         background-color: blue;
-      }`,
-      `.test:hover {
+      }
+      .test:hover {
         background-color: red;
-      }`,
-      `.test2:hover {
+      }
+      .test2:hover {
         background-color: white;
       }`
     )
