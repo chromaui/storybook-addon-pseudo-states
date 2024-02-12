@@ -35,7 +35,7 @@ const applyClasses = (element: Element, classnames: Set<string>) => {
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
-function querySelectorPiercingShadowDOM(root: Element | DocumentFragment, selector: string) {
+function querySelectorPiercingShadowDOM(root: Element | ShadowRoot, selector: string) {
   const results: Element[] = [];
   root.querySelectorAll('*').forEach((el) => {
     if (el.shadowRoot) {
@@ -87,13 +87,22 @@ const updateShadowHost = (shadowHost: Element) => {
     .split(" ")
     .filter((classname) => classname.startsWith("pseudo-"))
     .forEach((classname) => classnames.add(classname))
-  // Only adopt "pseudo-*-all" classes from ancestors
-  for (let element = shadowHost.parentElement; element; element = element.parentElement) {
-    if (!element.className) continue
-    element.className
-      .split(" ")
-      .filter((classname) => classname.match(/^pseudo-.+-all$/) !== null)
-      .forEach((classname) => classnames.add(classname))
+  // Adopt "pseudo-*-all" classes from ancestors (across shadow boundaries)
+  for (let node = shadowHost.parentNode; node;) {
+    if (node instanceof ShadowRoot) {
+      node = node.host
+      continue
+    }
+    if (node instanceof Element) {
+      const element = node
+      if (element.className) {
+        element.className
+          .split(" ")
+          .filter((classname) => classname.match(/^pseudo-.+-all$/) !== null)
+          .forEach((classname) => classnames.add(classname))
+      }
+    }
+    node = node.parentNode
   }
   applyClasses(shadowHost, classnames)
 }
