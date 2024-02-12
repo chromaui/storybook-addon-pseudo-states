@@ -82,11 +82,17 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost: Element) => {
   const classnames = new Set<string>()
-  for (let element: Element | null = shadowHost; element; element = element.parentElement) {
+  // Keep any existing "pseudo-*" classes
+  shadowHost.className
+    .split(" ")
+    .filter((classname) => classname.startsWith("pseudo-"))
+    .forEach((classname) => classnames.add(classname))
+  // Only adopt "pseudo-*-all" classes from ancestors
+  for (let element = shadowHost.parentElement; element; element = element.parentElement) {
     if (!element.className) continue
     element.className
       .split(" ")
-      .filter((classname) => classname.indexOf("pseudo-") === 0)
+      .filter((classname) => classname.match(/^pseudo-.+-all$/) !== null)
       .forEach((classname) => classnames.add(classname))
   }
   applyClasses(shadowHost, classnames)
