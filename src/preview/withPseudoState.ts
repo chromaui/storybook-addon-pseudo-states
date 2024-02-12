@@ -35,6 +35,17 @@ const applyClasses = (element: Element, classnames: Set<string>) => {
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
+function querySelectorPiercingShadowDOM(root: Element | DocumentFragment, selector: string) {
+  const results: Element[] = [];
+  root.querySelectorAll('*').forEach((el) => {
+    if (el.shadowRoot) {
+      results.push(...querySelectorPiercingShadowDOM(el.shadowRoot, selector))
+    }
+  })
+  results.push(...root.querySelectorAll(selector).values())
+  return results
+}
+
 const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {}) => {
   const map = new Map([[rootElement, new Set<PseudoState>()]])
   const add = (target: Element, state: PseudoState) =>
@@ -46,10 +57,10 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
       if (value) add(rootElement, `${state}-all` as PseudoState)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
-      rootElement.querySelectorAll(value).forEach((el) => add(el, state))
+      querySelectorPiercingShadowDOM(rootElement, value).forEach((el) => add(el, state))
     } else if (Array.isArray(value)) {
       // explicit selectors API - we have an array (of strings) recursively handle each one
-      value.forEach((sel) => rootElement.querySelectorAll(sel).forEach((el) => add(el, state)))
+      value.forEach((sel) => querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)))
     }
   })
 
@@ -71,7 +82,7 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost: Element) => {
   const classnames = new Set<string>()
-  for (let element = shadowHost.parentElement; element; element = element.parentElement) {
+  for (let element: Element | null = shadowHost; element; element = element.parentElement) {
     if (!element.className) continue
     element.className
       .split(" ")
