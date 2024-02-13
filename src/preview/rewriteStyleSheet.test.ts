@@ -197,12 +197,21 @@ describe("rewriteStyleSheet", () => {
   })
 
   it('supports ":host" with classes', () => {
-    const sheet = new Sheet(":host(.a:hover, .b) { color: red }")
+    const sheet = new Sheet(":host(.a:hover, .b) .c { color: red }")
     rewriteStyleSheet(sheet as any)
     const selectors = sheet.cssRules[0].getSelectors()
-    expect(selectors).toContain(":host(.a:hover, .b)")
-    expect(selectors).toContain(":host(.a.pseudo-hover, .b)")
-    expect(selectors).toContain(":host(.a.pseudo-hover-all, .b)")
+    expect(selectors).toContain(":host(.a:hover, .b) .c")
+    expect(selectors).toContain(":host(.a.pseudo-hover, .b) .c")
+    expect(selectors).toContain(":host(.a.pseudo-hover-all, .b) .c")
+  })
+
+  it('supports ":host" with state selectors in descendant selector', () => {
+    const sheet = new Sheet(":host(.a) .b:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(.a) .b:hover")
+    expect(selectors).toContain(":host(.a) .b.pseudo-hover")
+    expect(selectors).toContain(":host(.a.pseudo-hover-all) .b")
   })
 
   it('supports "::slotted"', () => {
@@ -211,7 +220,25 @@ describe("rewriteStyleSheet", () => {
     const selectors = sheet.cssRules[0].getSelectors()
     expect(selectors).toContain("::slotted(:hover)")
     expect(selectors).toContain("::slotted(.pseudo-hover)")
-    expect(selectors).toContain("::slotted(.pseudo-hover-all)")
+    expect(selectors).toContain(":host(.pseudo-hover-all) ::slotted(*)")
+  })
+
+  it('supports "::slotted" with classes', () => {
+    const sheet = new Sheet("::slotted(.a:hover, .b) .c { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("::slotted(.a:hover, .b) .c")
+    expect(selectors).toContain("::slotted(.a.pseudo-hover, .b) .c")
+    expect(selectors).toContain(":host(.pseudo-hover-all) ::slotted(.a, .b) .c")
+  })
+
+  it('supports "::slotted" with state selectors in descendant selector', () => {
+    const sheet = new Sheet("::slotted(.a) .b:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("::slotted(.a) .b:hover")
+    expect(selectors).toContain("::slotted(.a) .b.pseudo-hover")
+    expect(selectors).toContain(":host(.pseudo-hover-all) ::slotted(.a) .b")
   })
 
   it('supports ":not"', () => {

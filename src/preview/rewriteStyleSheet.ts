@@ -29,7 +29,7 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         }
 
         const states: string[] = []
-        const plainSelector = selector.replace(matchAll, (_, state) => {
+        let plainSelector = selector.replace(matchAll, (_, state) => {
           states.push(state)
           return ""
         })
@@ -38,28 +38,30 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
         }, selector)
 
-        let classAllSelector = ""
         let ancestorSelector = ""
         const statesAllClassSelectors = states.map((s) => `.pseudo-${s}-all`).join("")
         
-        if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
+        if (selector.startsWith(":host(")) {
           const matches = selector.match(/^:host\(([^ ]+)\) /)
           if (matches && !matchOne.test(matches[1])) {
-            // If :host() did not contain states, then classAllSelector won't work, and we need this selector.
+            // If :host() did not contain states, then simple replacement won't work.
             ancestorSelector = `:host(${matches[1]}${statesAllClassSelectors}) ${plainSelector.replace(matches[0], "")}`
           } else {
-            classAllSelector = states.reduce((acc, state) => {
+            ancestorSelector = states.reduce((acc, state) => {
               if (isExcludedPseudoElement(selector, state)) return ""
               return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
             }, selector)
           }
-        } else if (shadowRoot) {
+        } else if (selector.startsWith("::slotted(") || shadowRoot) {
+          if (plainSelector.startsWith("::slotted()")) {
+            plainSelector = plainSelector.replace("::slotted()", "::slotted(*)")
+          }
           ancestorSelector = `:host(${statesAllClassSelectors}) ${plainSelector}`
         } else {
           ancestorSelector = `${statesAllClassSelectors} ${plainSelector}`
         }
 
-        return [selector, classSelector, classAllSelector, ancestorSelector].filter(
+        return [selector, classSelector, ancestorSelector].filter(
           (selector) => selector && !selector.includes(":not()")
         )
       })
