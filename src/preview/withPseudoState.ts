@@ -174,10 +174,9 @@ export const withPseudoState: DecoratorFunction = (
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  let rewroteStyles = false
-  styleSheets.forEach((sheet) => {
-    if (rewriteStyleSheet(sheet, shadowRoot)) rewroteStyles = true
-  })
+  const rewroteStyles = styleSheets
+    .map((sheet) => rewriteStyleSheet(sheet, shadowRoot))
+    .some(Boolean)
   if (rewroteStyles && shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
 }
 
