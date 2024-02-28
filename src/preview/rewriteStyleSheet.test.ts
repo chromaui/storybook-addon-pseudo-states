@@ -284,6 +284,7 @@ describe("rewriteStyleSheet", () => {
       }`
     )
     rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].cssText).toContain("@media (max-width: 790px)")
     const selectors = (sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()
     expect(selectors).toContain("test:hover")
     expect(selectors).toContain("test.pseudo-hover")
