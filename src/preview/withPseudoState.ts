@@ -35,6 +35,17 @@ const applyClasses = (element: Element, classnames: Set<string>) => {
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
+function querySelectorPiercingShadowDOM(root: Element | ShadowRoot, selector: string) {
+  const results: Element[] = [];
+  root.querySelectorAll('*').forEach((el) => {
+    if (el.shadowRoot) {
+      results.push(...querySelectorPiercingShadowDOM(el.shadowRoot, selector))
+    }
+  })
+  results.push(...root.querySelectorAll(selector).values())
+  return results
+}
+
 const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {}) => {
   const map = new Map([[rootElement, new Set<PseudoState>()]])
   const add = (target: Element, state: PseudoState) =>
@@ -46,10 +57,10 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
       if (value) add(rootElement, `${state}-all` as PseudoState)
     } else if (typeof value === "string") {
       // explicit selectors API - applying pseudo class to a specific element
-      rootElement.querySelectorAll(value).forEach((el) => add(el, state))
+      querySelectorPiercingShadowDOM(rootElement, value).forEach((el) => add(el, state))
     } else if (Array.isArray(value)) {
       // explicit selectors API - we have an array (of strings) recursively handle each one
-      value.forEach((sel) => rootElement.querySelectorAll(sel).forEach((el) => add(el, state)))
+      value.forEach((sel) => querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)))
     }
   })
 
@@ -71,12 +82,27 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost: Element) => {
   const classnames = new Set<string>()
-  for (let element = shadowHost.parentElement; element; element = element.parentElement) {
-    if (!element.className) continue
-    element.className
-      .split(" ")
-      .filter((classname) => classname.indexOf("pseudo-") === 0)
-      .forEach((classname) => classnames.add(classname))
+  // Keep any existing "pseudo-*" classes
+  shadowHost.className
+    .split(" ")
+    .filter((classname) => classname.startsWith("pseudo-"))
+    .forEach((classname) => classnames.add(classname))
+  // Adopt "pseudo-*-all" classes from ancestors (across shadow boundaries)
+  for (let node = shadowHost.parentNode; node;) {
+    if (node instanceof ShadowRoot) {
+      node = node.host
+      continue
+    }
+    if (node instanceof Element) {
+      const element = node
+      if (element.className) {
+        element.className
+          .split(" ")
+          .filter((classname) => classname.match(/^pseudo-.+-all$/) !== null)
+          .forEach((classname) => classnames.add(classname))
+      }
+    }
+    node = node.parentNode
   }
   applyClasses(shadowHost, classnames)
 }
@@ -148,7 +174,10 @@ export const withPseudoState: DecoratorFunction = (
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot, shadowHosts))
+  const rewroteStyles = styleSheets
+    .map((sheet) => rewriteStyleSheet(sheet, shadowRoot))
+    .some(Boolean)
+  if (rewroteStyles && shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
 }
 
 // Only track shadow hosts for the current story
@@ -175,7 +204,7 @@ if (Element.prototype.attachShadow) {
     // Wait for it to render and apply its styles before rewriting them
     requestAnimationFrame(() => {
       rewriteStyleSheets(shadowRoot)
-      updateShadowHost(shadowRoot.host)
+      if (shadowHosts.has(shadowRoot.host)) updateShadowHost(shadowRoot.host)
     })
     return shadowRoot
   }
