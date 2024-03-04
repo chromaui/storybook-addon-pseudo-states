@@ -1,3 +1,21 @@
+# v2.2.0 (Mon Mar 04 2024)
+
+#### 🚀 Enhancement
+
+- Support grouping rules like @media and @layer and fix shadow DOM support [#103](https://github.com/chromaui/storybook-addon-pseudo-states/pull/103) ([@m-akinc](https://github.com/m-akinc))
+
+#### 🐛 Bug Fix
+
+- Fix CI config [#106](https://github.com/chromaui/storybook-addon-pseudo-states/pull/106) ([@ghengeveld](https://github.com/ghengeveld))
+- Exclude ::-webkit-slider-thumb pseudo-element from rewrites [#104](https://github.com/chromaui/storybook-addon-pseudo-states/pull/104) ([@m-akinc](https://github.com/m-akinc))
+
+#### Authors: 2
+
+- [@m-akinc](https://github.com/m-akinc)
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v2.1.2 (Wed Oct 11 2023)
 
 #### 🐛 Bug Fix
