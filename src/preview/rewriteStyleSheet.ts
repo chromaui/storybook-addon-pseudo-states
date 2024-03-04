@@ -29,7 +29,7 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         }
 
         const states: string[] = []
-        const plainSelector = selector.replace(matchAll, (_, state) => {
+        let plainSelector = selector.replace(matchAll, (_, state) => {
           states.push(state)
           return ""
         })
@@ -38,18 +38,28 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
         }, selector)
 
-        const classAllSelector = states.reduce((acc, state) => {
-          if (isExcludedPseudoElement(selector, state)) return ""
-          return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
-        }, selector)
-
-        if (selector.startsWith(":host(") || selector.startsWith("::slotted(")) {
-          return [selector, classSelector, classAllSelector].filter(Boolean)
+        let ancestorSelector = ""
+        const statesAllClassSelectors = states.map((s) => `.pseudo-${s}-all`).join("")
+        
+        if (selector.startsWith(":host(")) {
+          const matches = selector.match(/^:host\(([^ ]+)\) /)
+          if (matches && !matchOne.test(matches[1])) {
+            // If :host() did not contain states, then simple replacement won't work.
+            ancestorSelector = `:host(${matches[1]}${statesAllClassSelectors}) ${plainSelector.replace(matches[0], "")}`
+          } else {
+            ancestorSelector = states.reduce((acc, state) => {
+              if (isExcludedPseudoElement(selector, state)) return ""
+              return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
+            }, selector)
+          }
+        } else if (selector.startsWith("::slotted(") || shadowRoot) {
+          if (plainSelector.startsWith("::slotted()")) {
+            plainSelector = plainSelector.replace("::slotted()", "::slotted(*)")
+          }
+          ancestorSelector = `:host(${statesAllClassSelectors}) ${plainSelector}`
+        } else {
+          ancestorSelector = `${statesAllClassSelectors} ${plainSelector}`
         }
-
-        const ancestorSelector = shadowRoot
-          ? `:host(${states.map((s) => `.pseudo-${s}-all`).join("")}) ${plainSelector}`
-          : `${states.map((s) => `.pseudo-${s}-all`).join("")} ${plainSelector}`
 
         return [selector, classSelector, ancestorSelector].filter(
           (selector) => selector && !selector.includes(":not()")
@@ -63,33 +73,17 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
 // A sheet can only be rewritten once, and may carry over between stories.
 export const rewriteStyleSheet = (
   sheet: CSSStyleSheet,
-  shadowRoot?: ShadowRoot,
-  shadowHosts?: Set<Element>
-) => {
+  shadowRoot?: ShadowRoot
+): boolean => {
   try {
-    let index = -1
-    for (const cssRule of sheet.cssRules) {
-      index++
-
-      // @ts-expect-error
-      if (cssRule.__pseudoStatesRewritten || !("selectorText" in cssRule)) continue
-
-      const styleRule = cssRule as CSSStyleRule
-      if (matchOne.test(styleRule.selectorText)) {
-        const newRule = rewriteRule(styleRule, shadowRoot)
-        sheet.deleteRule(index)
-        sheet.insertRule(newRule, index)
-        if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
-      }
-
-      // @ts-expect-error
-      cssRule.__pseudoStatesRewritten = true
-
-      if (index > 1000) {
-        warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
-        break
-      }
+    const maximumRulesToRewrite = 1000
+    const count = rewriteRuleContainer(sheet, maximumRulesToRewrite, shadowRoot);
+    
+    if (count >= maximumRulesToRewrite) {
+      warnOnce("Reached maximum of 1000 pseudo selectors per sheet, skipping the rest.")
     }
+
+    return count > 0
   } catch (e) {
     if (String(e).includes("cssRules")) {
       warnOnce(`Can't access cssRules, likely due to CORS restrictions: ${sheet.href}`)
@@ -97,5 +91,49 @@ export const rewriteStyleSheet = (
       // eslint-disable-next-line no-console
       console.error(e, sheet.href)
     }
+    return false
   }
+}
+
+const rewriteRuleContainer = (
+  ruleContainer: CSSStyleSheet | CSSGroupingRule,
+  rewriteLimit: number,
+  shadowRoot?: ShadowRoot
+): number => {
+  let count = 0
+  let index = -1
+  for (const cssRule of ruleContainer.cssRules) {
+    index++
+    let numRewritten = 0
+
+    // @ts-expect-error
+    if (cssRule.__processed) {
+      // @ts-expect-error
+      numRewritten = cssRule.__pseudoStatesRewrittenCount
+    } else {
+      if ("cssRules" in cssRule && (cssRule.cssRules as CSSRuleList).length) {
+        numRewritten = rewriteRuleContainer(cssRule as CSSGroupingRule, rewriteLimit - count, shadowRoot)
+      } else {
+        if (!("selectorText" in cssRule)) continue
+        const styleRule = cssRule as CSSStyleRule
+        if (matchOne.test(styleRule.selectorText)) {
+          const newRule = rewriteRule(styleRule, shadowRoot)
+          ruleContainer.deleteRule(index)
+          ruleContainer.insertRule(newRule, index)
+          numRewritten = 1
+        }
+      }
+      // @ts-expect-error
+      cssRule.__processed = true
+      // @ts-expect-error
+      cssRule.__pseudoStatesRewrittenCount = numRewritten
+    }
+    count += numRewritten
+
+    if (count >= rewriteLimit) {
+      break
+    }
+  }
+
+  return count
 }

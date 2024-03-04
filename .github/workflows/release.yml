@@ -12,10 +12,10 @@ jobs:
       - name: Prepare repository
         run: git fetch --unshallow --tags
 
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: latest
 
       - name: Cache node modules
         uses: actions/cache@v1
