@@ -64,7 +64,7 @@
     "@storybook/testing-library": "^0.0.13",
     "@storybook/types": "^7.4.6",
     "@types/jest": "^29.2.4",
-    "auto": "^10.16.8",
+    "auto": "^11.1.1",
     "concurrently": "^5.3.0",
     "jest": "^27.5.1",
     "react": "^17.0.1",
