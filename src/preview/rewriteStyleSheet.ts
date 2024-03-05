@@ -62,7 +62,7 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         }
 
         return [selector, classSelector, ancestorSelector].filter(
-          (selector) => selector && !selector.includes(":not()")
+          (selector) => selector && !selector.includes(":not()") && !selector.includes(":has()")
         )
       })
       .join(", ")

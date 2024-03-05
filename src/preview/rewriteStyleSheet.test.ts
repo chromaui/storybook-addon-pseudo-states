@@ -247,6 +247,12 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover)")
   })
 
+  it('supports ":has"', () => {
+    const sheet = new Sheet(":has(:hover) { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].cssText).toEqual(":has(:hover), :has(.pseudo-hover) { color: red }")
+  })
+
   it("override correct rules with media query present", () => {
     const sheet = new Sheet(
       `@media (max-width: 790px) {
