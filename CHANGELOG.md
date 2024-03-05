@@ -1,3 +1,15 @@
+# v2.2.1 (Tue Mar 05 2024)
+
+#### 🐛 Bug Fix
+
+- Avoid generating invalid selector with `:has` [#105](https://github.com/chromaui/storybook-addon-pseudo-states/pull/105) ([@m-akinc](https://github.com/m-akinc))
+
+#### Authors: 1
+
+- [@m-akinc](https://github.com/m-akinc)
+
+---
+
 # v2.2.0 (Mon Mar 04 2024)
 
 #### 🚀 Enhancement
