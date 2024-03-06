@@ -163,7 +163,7 @@ export const withPseudoState: DecoratorFunction = (
     const timeout = setTimeout(() => {
       applyParameter(rootElement, globals || pseudoConfig(parameter))
       shadowHosts.forEach(updateShadowHost)
-    }, 0)
+    }, parameters.pseudoDelay || 0)
     return () => clearTimeout(timeout)
   }, [rootElement, globals, parameter])
 
