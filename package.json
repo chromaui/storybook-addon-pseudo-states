@@ -14,8 +14,15 @@
   },
   "author": "ghengeveld",
   "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
     "./manager": {
       "types": "./dist/manager.d.ts",
       "require": "./dist/manager.js",
@@ -69,6 +76,9 @@
     "typescript": "^4.9.4"
   },
   "bundler": {
+    "exportEntries": [
+      "src/index.ts"
+    ],
     "managerEntries": [
       "src/manager.ts"
     ],
