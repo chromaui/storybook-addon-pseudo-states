@@ -51,6 +51,8 @@
     "release": "auto shipit --base-branch=main"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-typescript": "^7.23.3",
     "@chromatic-com/storybook": "^1.2.1",
     "@storybook/addon-essentials": "^8.0.0-rc.1",
     "@storybook/addon-interactions": "^8.0.0-rc.1",
