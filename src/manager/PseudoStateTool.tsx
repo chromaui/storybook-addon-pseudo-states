@@ -1,5 +1,6 @@
 import React, { useCallback } from "react"
-import { Icons, IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
+import { IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
+import { CheckIcon } from "@storybook/icons"
 import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
@@ -9,7 +10,7 @@ const LinkTitle = styled.span<{ active?: boolean }>(({ active }) => ({
   color: active ? color.secondary : "inherit",
 }))
 
-const LinkIcon = styled(Icons)<{ active?: boolean }>(({ active }) => ({
+const LinkIcon = styled(CheckIcon)<{ active?: boolean }>(({ active }) => ({
   opacity: active ? 1 : 0,
   path: { fill: active ? color.secondary : "inherit" },
 }))
@@ -25,7 +26,7 @@ export const PseudoStateTool = () => {
       if (!pseudo) return false
       return pseudo[option] === true
     },
-    [pseudo]
+    [pseudo],
   )
 
   const toggleOption = useCallback(
@@ -37,7 +38,7 @@ export const PseudoStateTool = () => {
         },
       })
     },
-    [pseudo]
+    [pseudo],
   )
 
   return (
@@ -49,7 +50,7 @@ export const PseudoStateTool = () => {
           links={options.map((option) => ({
             id: option,
             title: <LinkTitle active={isActive(option)}>:{PSEUDO_STATES[option]}</LinkTitle>,
-            right: <LinkIcon icon="check" width={12} height={12} active={isActive(option)} />,
+            right: <LinkIcon width={12} height={12} active={isActive(option)} />,
             onClick: toggleOption(option),
             active: isActive(option),
           }))}

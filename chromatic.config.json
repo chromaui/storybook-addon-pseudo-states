@@ -1,4 +1,5 @@
 {
   "buildScriptName": "build:storybook",
-  "projectId": "Project:6008aabce49a640021858011"
+  "projectId": "Project:6008aabce49a640021858011",
+  "zip": true
 }

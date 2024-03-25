@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "incremental": false,
+    "isolatedModules": true,
     "jsx": "react",
-  }
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+  },
+  "include": ["src/**/*"],
 }
