@@ -1,3 +1,21 @@
+# v3.0.0 (Mon Mar 25 2024)
+
+#### 💥 Breaking Change
+
+
+#### 🐛 Bug Fix
+
+- Add `author` and `publishConfig` to package.json [#109](https://github.com/chromaui/storybook-addon-pseudo-states/pull/109) ([@ghengeveld](https://github.com/ghengeveld))
+- Use bundling strategy suitable for Storybook 8 [#107](https://github.com/chromaui/storybook-addon-pseudo-states/pull/107) ([@JReinhold](https://github.com/JReinhold))
+
+#### Authors: 3
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Jeppe Reinhold ([@JReinhold](https://github.com/JReinhold))
+- Shaun Evening ([@ShaunEvening](https://github.com/ShaunEvening))
+
+---
+
 # v2.2.1 (Tue Mar 05 2024)
 
 #### 🐛 Bug Fix
