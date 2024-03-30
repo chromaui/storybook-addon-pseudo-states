@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import { IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
-import { CheckIcon } from "@storybook/icons"
+import { CheckIcon, ButtonIcon } from "@storybook/icons"
 import { useGlobals } from "@storybook/manager-api"
 import { styled, color } from "@storybook/theming"
 
@@ -62,7 +62,7 @@ export const PseudoStateTool = () => {
         title="Select CSS pseudo states"
         active={options.some(isActive)}
       >
-        <Icons icon="button" />
+        <ButtonIcon />
       </IconButton>
     </WithTooltip>
   )
