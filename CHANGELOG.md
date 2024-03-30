@@ -1,3 +1,15 @@
+# v3.0.1 (Sat Mar 30 2024)
+
+#### 🐛 Bug Fix
+
+- switch off older Icons reference #111 [#112](https://github.com/chromaui/storybook-addon-pseudo-states/pull/112) ([@wegry](https://github.com/wegry))
+
+#### Authors: 1
+
+- Zach Wegrzyniak ([@wegry](https://github.com/wegry))
+
+---
+
 # v3.0.0 (Mon Mar 25 2024)
 
 #### 💥 Breaking Change
