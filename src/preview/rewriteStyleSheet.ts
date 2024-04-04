@@ -1,4 +1,4 @@
-import { PSEUDO_STATES, EXCLUDED_PSEUDO_ELEMENTS } from "../constants"
+import { PSEUDO_STATES, EXCLUDED_PSEUDO_ELEMENT_PATTERNS } from "../constants"
 import { splitSelectors } from "./splitSelectors"
 
 const pseudoStates = Object.values(PSEUDO_STATES)
@@ -13,8 +13,8 @@ const warnOnce = (message: string) => {
   warnings.add(message)
 }
 
-const isExcludedPseudoElement = (selector: string, pseudoState: string) =>
-  EXCLUDED_PSEUDO_ELEMENTS.some((element) => selector.endsWith(`${element}:${pseudoState}`))
+const replacementRegExp = (pseudoState: string) =>
+  new RegExp(`(?<!(${EXCLUDED_PSEUDO_ELEMENT_PATTERNS.join("|")})\\S*):${pseudoState}`, "g")
 
 const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: ShadowRoot) => {
   return cssText.replace(
@@ -33,30 +33,25 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
           states.push(state)
           return ""
         })
-        const classSelector = states.reduce((acc, state) => {
-          if (isExcludedPseudoElement(selector, state)) return ""
-          return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}`)
-        }, selector)
+        const classSelector = states.reduce((acc, state) => acc.replace(replacementRegExp(state), `.pseudo-${state}`), selector)
 
         let ancestorSelector = ""
         const statesAllClassSelectors = states.map((s) => `.pseudo-${s}-all`).join("")
         
         if (selector.startsWith(":host(")) {
-          const matches = selector.match(/^:host\(([^ ]+)\) /)
+          const matches = selector.match(/^:host\((\S+)\) /)
           if (matches && !matchOne.test(matches[1])) {
             // If :host() did not contain states, then simple replacement won't work.
+            // E.g. :host(.foo#bar) .baz:hover:active -> :host(.foo#bar.pseudo-hover-all.pseudo-active-all) .baz
             ancestorSelector = `:host(${matches[1]}${statesAllClassSelectors}) ${plainSelector.replace(matches[0], "")}`
           } else {
-            ancestorSelector = states.reduce((acc, state) => {
-              if (isExcludedPseudoElement(selector, state)) return ""
-              return acc.replace(new RegExp(`:${state}`, "g"), `.pseudo-${state}-all`)
-            }, selector)
+            ancestorSelector = states.reduce((acc, state) => acc.replace(replacementRegExp(state), `.pseudo-${state}-all`), selector)
+            // NOTE: Selectors with pseudo states on both :host and a descendant are not properly supported.
+            // E.g. :host(.foo:focus) .bar:hover -> :host(.foo.pseudo-focus-all.pseudo-hover-all) .bar
           }
         } else if (selector.startsWith("::slotted(") || shadowRoot) {
-          if (plainSelector.startsWith("::slotted()")) {
-            plainSelector = plainSelector.replace("::slotted()", "::slotted(*)")
-          }
-          ancestorSelector = `:host(${statesAllClassSelectors}) ${plainSelector}`
+          // If removing pseudo-state selectors from inside ::slotted left it empty (thus invalid), must fix it by adding '*'.
+          ancestorSelector = `:host(${statesAllClassSelectors}) ${plainSelector.replace("::slotted()", "::slotted(*)")}`
         } else {
           ancestorSelector = `${statesAllClassSelectors} ${plainSelector}`
         }

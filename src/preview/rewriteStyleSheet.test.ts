@@ -137,10 +137,28 @@ describe("rewriteStyleSheet", () => {
     ].includes(x))).toEqual([])
   })
 
-  it("does not add .pseudo-<class> to pseudo-class, which does not support classes", () => {
+  it("does not add .pseudo-<class> to pseudo-class/element which does not support classes", () => {
     const sheet = new Sheet("::-webkit-scrollbar-thumb:hover { border-color: transparent; }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].getSelectors()).not.toContain("::-webkit-scrollbar-thumb.pseudo-hover")
+  })
+
+  it("adds alternative selector when ::-webkit-scrollbar-thumb follows :hover", () => {
+    const sheet = new Sheet("div:hover::-webkit-scrollbar-thumb { border-color: transparent; }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors()).toContain("div.pseudo-hover::-webkit-scrollbar-thumb")
+  })
+
+  it("does not add .pseudo-<class> to pseudo-class/element (with arguments) which does not support classes", () => {
+    const sheet = new Sheet("::part(foo bar):hover { border-color: transparent; }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors()).not.toContain("::part(foo bar).pseudo-hover")
+  })
+
+  it("adds alternative selector when ::part() follows :hover", () => {
+    const sheet = new Sheet("custom-elt:hover::part(foo bar) { border-color: transparent; }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors()).toContain("custom-elt.pseudo-hover::part(foo bar)")
   })
 
   it("adds alternative selector for each pseudo selector", () => {
