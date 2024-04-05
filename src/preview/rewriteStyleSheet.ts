@@ -39,15 +39,14 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, shadowRoot?: Shado
         const statesAllClassSelectors = states.map((s) => `.pseudo-${s}-all`).join("")
         
         if (selector.startsWith(":host(")) {
-          const matches = selector.match(/^:host\((\S+)\) /)
-          if (matches && !matchOne.test(matches[1])) {
-            // If :host() did not contain states, then simple replacement won't work.
+          const matches = selector.match(/^:host\((\S+)\)\s+(.+)$/)
+          if (matches && matchOne.test(matches[2])) {
+            // If there are pseudo-state selectors outside of :host(), then simple replacement won't work.
             // E.g. :host(.foo#bar) .baz:hover:active -> :host(.foo#bar.pseudo-hover-all.pseudo-active-all) .baz
-            ancestorSelector = `:host(${matches[1]}${statesAllClassSelectors}) ${plainSelector.replace(matches[0], "")}`
+            // E.g. :host(.foo:focus) .bar:hover -> :host(.foo.pseudo-focus-all.pseudo-hover-all) .bar
+            ancestorSelector = `:host(${matches[1].replace(matchAll, "")}${statesAllClassSelectors}) ${matches[2].replace(matchAll, "")}`
           } else {
             ancestorSelector = states.reduce((acc, state) => acc.replace(replacementRegExp(state), `.pseudo-${state}-all`), selector)
-            // NOTE: Selectors with pseudo states on both :host and a descendant are not properly supported.
-            // E.g. :host(.foo:focus) .bar:hover -> :host(.foo.pseudo-focus-all.pseudo-hover-all) .bar
           }
         } else if (selector.startsWith("::slotted(") || shadowRoot) {
           // If removing pseudo-state selectors from inside ::slotted left it empty (thus invalid), must fix it by adding '*'.

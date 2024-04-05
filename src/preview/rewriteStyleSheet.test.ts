@@ -215,12 +215,12 @@ describe("rewriteStyleSheet", () => {
   })
 
   it('supports ":host" with classes', () => {
-    const sheet = new Sheet(":host(.a:hover, .b) .c { color: red }")
+    const sheet = new Sheet(":host(.a:hover) .c { color: red }")
     rewriteStyleSheet(sheet as any)
     const selectors = sheet.cssRules[0].getSelectors()
-    expect(selectors).toContain(":host(.a:hover, .b) .c")
-    expect(selectors).toContain(":host(.a.pseudo-hover, .b) .c")
-    expect(selectors).toContain(":host(.a.pseudo-hover-all, .b) .c")
+    expect(selectors).toContain(":host(.a:hover) .c")
+    expect(selectors).toContain(":host(.a.pseudo-hover) .c")
+    expect(selectors).toContain(":host(.a.pseudo-hover-all) .c")
   })
 
   it('supports ":host" with state selectors in descendant selector', () => {
@@ -230,6 +230,15 @@ describe("rewriteStyleSheet", () => {
     expect(selectors).toContain(":host(.a) .b:hover")
     expect(selectors).toContain(":host(.a) .b.pseudo-hover")
     expect(selectors).toContain(":host(.a.pseudo-hover-all) .b")
+  })
+
+  it('supports ":host" with state selectors in :host and descendant selector', () => {
+    const sheet = new Sheet(":host(.a:focus) .b:hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(.a:focus) .b:hover")
+    expect(selectors).toContain(":host(.a.pseudo-focus) .b.pseudo-hover")
+    expect(selectors).toContain(":host(.a.pseudo-focus-all.pseudo-hover-all) .b")
   })
 
   it('supports "::slotted"', () => {
