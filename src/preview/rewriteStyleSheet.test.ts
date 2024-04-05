@@ -243,7 +243,7 @@ describe("rewriteStyleSheet", () => {
 
   it('supports "::slotted"', () => {
     const sheet = new Sheet("::slotted(:hover) { color: red }")
-    rewriteStyleSheet(sheet as any)
+    rewriteStyleSheet(sheet as any, true)
     const selectors = sheet.cssRules[0].getSelectors()
     expect(selectors).toContain("::slotted(:hover)")
     expect(selectors).toContain("::slotted(.pseudo-hover)")
@@ -251,33 +251,66 @@ describe("rewriteStyleSheet", () => {
   })
 
   it('supports "::slotted" with classes', () => {
-    const sheet = new Sheet("::slotted(.a:hover, .b) .c { color: red }")
-    rewriteStyleSheet(sheet as any)
+    const sheet = new Sheet(".a > slot::slotted(.b:hover) { color: red }")
+    rewriteStyleSheet(sheet as any, true)
     const selectors = sheet.cssRules[0].getSelectors()
-    expect(selectors).toContain("::slotted(.a:hover, .b) .c")
-    expect(selectors).toContain("::slotted(.a.pseudo-hover, .b) .c")
-    expect(selectors).toContain(":host(.pseudo-hover-all) ::slotted(.a, .b) .c")
-  })
-
-  it('supports "::slotted" with state selectors in descendant selector', () => {
-    const sheet = new Sheet("::slotted(.a) .b:hover { color: red }")
-    rewriteStyleSheet(sheet as any)
-    const selectors = sheet.cssRules[0].getSelectors()
-    expect(selectors).toContain("::slotted(.a) .b:hover")
-    expect(selectors).toContain("::slotted(.a) .b.pseudo-hover")
-    expect(selectors).toContain(":host(.pseudo-hover-all) ::slotted(.a) .b")
+    expect(selectors).toContain(".a > slot::slotted(.b:hover)")
+    expect(selectors).toContain(".a > slot::slotted(.b.pseudo-hover)")
+    expect(selectors).toContain(":host(.pseudo-hover-all) .a > slot::slotted(.b)")
   })
 
   it('supports ":not"', () => {
     const sheet = new Sheet(":not(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover)")
+    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover), :not(.pseudo-hover-all *)")
+  })
+
+  it('supports ":not" in shadow DOM', () => {
+    const sheet = new Sheet(":not(:hover) { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover), :not(:host(.pseudo-hover-all) *)")
+  })
+
+  it('supports complex use of ":not"', () => {
+    const sheet = new Sheet("foo:focus:not(:hover, .bar:active) .baz { color: red }")
+    rewriteStyleSheet(sheet as any)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("foo:focus:not(:hover, .bar:active) .baz")
+    expect(selectors).toContain("foo.pseudo-focus:not(.pseudo-hover, .bar.pseudo-active) .baz")
+    expect(selectors).toContain(".pseudo-focus-all foo:not(.pseudo-hover-all *, .pseudo-active-all .bar) .baz")
+  })
+
+  it('supports complex use of ":not" in shadow DOM', () => {
+    const sheet = new Sheet("foo:focus:not(:hover, .bar:active) .baz { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain("foo:focus:not(:hover, .bar:active) .baz")
+    expect(selectors).toContain("foo.pseudo-focus:not(.pseudo-hover, .bar.pseudo-active) .baz")
+    expect(selectors).toContain(":host(.pseudo-focus-all) foo:not(:host(.pseudo-hover-all) *, :host(.pseudo-active-all) .bar) .baz")
+  })
+
+  it('supports ":not" inside ":host"', () => {
+    const sheet = new Sheet(":host(.foo:not(:hover)) .baz:active { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(.foo:not(:hover)) .baz:active")
+    expect(selectors).toContain(":host(.foo:not(.pseudo-hover)) .baz.pseudo-active")
+    expect(selectors).toContain(":host(.foo:not(.pseudo-hover-all).pseudo-active-all) .baz")
+  })
+
+  it('supports ":not" inside and outside of ":host"', () => {
+    const sheet = new Sheet(":host(.foo:not(:hover)) .baz:not(:active) { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host(.foo:not(:hover)) .baz:not(:active)")
+    expect(selectors).toContain(":host(.foo:not(.pseudo-hover)) .baz:not(.pseudo-active)")
+    expect(selectors).toContain(":host(.foo:not(.pseudo-hover-all)) .baz:not(:host(.pseudo-active-all) *)")
   })
 
   it('supports ":has"', () => {
     const sheet = new Sheet(":has(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(":has(:hover), :has(.pseudo-hover) { color: red }")
+    expect(sheet.cssRules[0].cssText).toEqual(":has(:hover), :has(.pseudo-hover), .pseudo-hover-all :has(*) { color: red }")
   })
 
   it("override correct rules with media query present", () => {
