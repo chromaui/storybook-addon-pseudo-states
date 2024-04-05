@@ -82,10 +82,10 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
 // Shadow DOM can only access classes on its host. Traversing is needed to mimic the CSS cascade.
 const updateShadowHost = (shadowHost: Element) => {
   const classnames = new Set<string>()
-  // Keep any existing "pseudo-*" classes
+  // Keep any existing "pseudo-*" classes (but not "pseudo-*-all")
   shadowHost.className
     .split(" ")
-    .filter((classname) => classname.startsWith("pseudo-"))
+    .filter((classname) => classname.match(/^pseudo-(.(?!-all))+$/))
     .forEach((classname) => classnames.add(classname))
   // Adopt "pseudo-*-all" classes from ancestors (across shadow boundaries)
   for (let node = shadowHost.parentNode; node;) {
@@ -174,10 +174,8 @@ export const withPseudoState: DecoratorFunction = (
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
   let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
   if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  const rewroteStyles = styleSheets
-    .map((sheet) => rewriteStyleSheet(sheet, shadowRoot))
-    .some(Boolean)
-  if (rewroteStyles && shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
+  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, shadowRoot))
+  if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
 }
 
 // Only track shadow hosts for the current story
