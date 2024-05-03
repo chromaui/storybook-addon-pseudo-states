@@ -1,13 +1,11 @@
 import { PSEUDO_STATES, EXCLUDED_PSEUDO_ELEMENT_PATTERNS } from "../constants"
 import { splitSelectors } from "./splitSelectors"
 
-const pseudoStateRegExp = (global: boolean, pseudoStates: string[]) =>
-  new RegExp(`(?<!(?:${EXCLUDED_PSEUDO_ELEMENT_PATTERNS.join("|")})\\S*):(${pseudoStates.join("|")})`, global ? "g" : undefined)
 const pseudoStates = Object.values(PSEUDO_STATES)
-const matchOne = pseudoStateRegExp(false, pseudoStates)
-const matchAll = pseudoStateRegExp(true, pseudoStates)
-const replacementRegExp = (pseudoState: string) => pseudoStateRegExp(true, [pseudoState])
-
+const pseudoStatesPattern = `:(${pseudoStates.join("|")})`
+const matchOne = new RegExp(pseudoStatesPattern)
+const matchAll = new RegExp(pseudoStatesPattern, "g")
+  
 const warnings = new Set()
 const warnOnce = (message: string) => {
   if (warnings.has(message)) return
@@ -17,7 +15,11 @@ const warnOnce = (message: string) => {
 }
 
 const replacePseudoStates = (selector: string, allClass?: boolean) => {
-  return pseudoStates.reduce((acc, state) => acc.replace(replacementRegExp(state), `.pseudo-${state}${allClass ? "-all" : ""}`), selector)
+  const negativeLookbehind = `(?<!(?:${EXCLUDED_PSEUDO_ELEMENT_PATTERNS.join("|")})\\S*)`
+  return pseudoStates.reduce((acc, state) => acc.replace(
+    new RegExp(`${negativeLookbehind}:${state}`, "g"), 
+    `.pseudo-${state}${allClass ? "-all" : ""}`
+  ), selector)
 }
 
 // Does not handle :host() or :not() containing pseudo-states. Need to call replaceNotSelectors on the input first.
@@ -77,11 +79,16 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, forShadowDOM: bool
         if (selector.includes(".pseudo-")) {
           return []
         }
+        const replacementSelectors = [selector]
         if (!matchOne.test(selector)) {
-          return [selector]
+          return replacementSelectors
         }
 
         const classSelector = replacePseudoStates(selector)
+        if (classSelector !== selector) {
+          replacementSelectors.push(classSelector)
+        }
+
         let ancestorSelector = ""
         
         if (selector.startsWith(":host(")) {
@@ -108,8 +115,9 @@ const rewriteRule = ({ cssText, selectorText }: CSSStyleRule, forShadowDOM: bool
           const withNotsReplaced = rewriteNotSelectors(selector, forShadowDOM)
           ancestorSelector = replacePseudoStatesWithAncestorSelector(withNotsReplaced, forShadowDOM)
         }
+        replacementSelectors.push(ancestorSelector)
 
-        return [selector, classSelector, ancestorSelector]
+        return replacementSelectors
       })
       .join(", ")
   )

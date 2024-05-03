@@ -141,6 +141,7 @@ describe("rewriteStyleSheet", () => {
     const sheet = new Sheet("::-webkit-scrollbar-thumb:hover { border-color: transparent; }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].getSelectors()).not.toContain("::-webkit-scrollbar-thumb.pseudo-hover")
+    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all ::-webkit-scrollbar-thumb")
   })
 
   it("adds alternative selector when ::-webkit-scrollbar-thumb follows :hover", () => {
@@ -153,6 +154,7 @@ describe("rewriteStyleSheet", () => {
     const sheet = new Sheet("::part(foo bar):hover { border-color: transparent; }")
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[0].getSelectors()).not.toContain("::part(foo bar).pseudo-hover")
+    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all ::part(foo bar)")
   })
 
   it("adds alternative selector when ::part() follows :hover", () => {
