@@ -1,3 +1,23 @@
+# v3.1.0 (Mon May 06 2024)
+
+#### 🚀 Enhancement
+
+- Support `:host-context()` selector [#118](https://github.com/chromaui/storybook-addon-pseudo-states/pull/118) ([@m-akinc](https://github.com/m-akinc) [@ghengeveld](https://github.com/ghengeveld))
+
+#### 🐛 Bug Fix
+
+- Fix regression in pseudo-element handling [#117](https://github.com/chromaui/storybook-addon-pseudo-states/pull/117) ([@m-akinc](https://github.com/m-akinc))
+- Add proper support for :not() [#115](https://github.com/chromaui/storybook-addon-pseudo-states/pull/115) ([@m-akinc](https://github.com/m-akinc))
+- Better support pseudo-states in selectors with `:host()` [#114](https://github.com/chromaui/storybook-addon-pseudo-states/pull/114) ([@m-akinc](https://github.com/m-akinc))
+- Avoid invalid `::part` selector [#113](https://github.com/chromaui/storybook-addon-pseudo-states/pull/113) ([@m-akinc](https://github.com/m-akinc))
+
+#### Authors: 2
+
+- [@m-akinc](https://github.com/m-akinc)
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v3.0.1 (Sat Mar 30 2024)
 
 #### 🐛 Bug Fix
