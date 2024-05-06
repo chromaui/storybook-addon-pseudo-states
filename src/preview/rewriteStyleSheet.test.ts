@@ -243,6 +243,42 @@ describe("rewriteStyleSheet", () => {
     expect(selectors).toContain(":host(.a.pseudo-focus-all.pseudo-hover-all) .b")
   })
 
+  it('supports ":host-context"', () => {
+    const sheet = new Sheet(":host-context(:hover) { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host-context(:hover)")
+    expect(selectors).toContain(":host-context(.pseudo-hover)")
+    expect(selectors).toContain(":host(.pseudo-hover-all)")
+  })
+
+  it('supports ":host-context" with classes', () => {
+    const sheet = new Sheet(":host-context(.a:hover) .b { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host-context(.a:hover) .b")
+    expect(selectors).toContain(":host-context(.a.pseudo-hover) .b")
+    expect(selectors).toContain(":host-context(.a).pseudo-hover-all .b")
+  })
+
+  it('supports ":host-context" with state selectors in descendant selector', () => {
+    const sheet = new Sheet(":host-context(.a) .b:hover { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host-context(.a) .b:hover")
+    expect(selectors).toContain(":host-context(.a) .b.pseudo-hover")
+    expect(selectors).toContain(":host-context(.a).pseudo-hover-all .b")
+  })
+
+  it('supports ":host-context" with state selectors in :host-context and descendant selector', () => {
+    const sheet = new Sheet(":host-context(.a:focus) .b:hover { color: red }")
+    rewriteStyleSheet(sheet as any, true)
+    const selectors = sheet.cssRules[0].getSelectors()
+    expect(selectors).toContain(":host-context(.a:focus) .b:hover")
+    expect(selectors).toContain(":host-context(.a.pseudo-focus) .b.pseudo-hover")
+    expect(selectors).toContain(":host-context(.a).pseudo-focus-all.pseudo-hover-all .b")
+  })
+
   it('supports "::slotted"', () => {
     const sheet = new Sheet("::slotted(:hover) { color: red }")
     rewriteStyleSheet(sheet as any, true)

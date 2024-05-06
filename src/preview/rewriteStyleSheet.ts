@@ -24,13 +24,22 @@ const replacePseudoStates = (selector: string, allClass?: boolean) => {
 
 // Does not handle :host() or :not() containing pseudo-states. Need to call replaceNotSelectors on the input first.
 const replacePseudoStatesWithAncestorSelector = (selector: string, forShadowDOM: boolean, additionalHostSelectors?: string) => {
-  const { states, withoutPseudoStates } = extractPseudoStates(selector)
-  const classes = states.map((s) => `.pseudo-${s}-all`).join("")
-  return states.length === 0 && !additionalHostSelectors
-    ? selector
+  let { states, withoutPseudoStates } = extractPseudoStates(selector)
+  if (states.length === 0 && !additionalHostSelectors) {
+    return selector
+  }
+  const selectors = `${additionalHostSelectors ?? ""}${states.map((s) => `.pseudo-${s}-all`).join("")}`
+
+  // If there was a :host-context() containing only pseudo-states, we will later add a :host selector that replaces it.
+  withoutPseudoStates = withoutPseudoStates.replace(":host-context(*)", "").trimStart()
+
+  // If there is a :host-context() selector, we don't need to introduce a :host() selector.
+  // We can just append the pseudo-state classes to the :host-context() selector.
+  return withoutPseudoStates.startsWith(":host-context(")
+    ? withoutPseudoStates.replace(/(?<=:host-context\(\S+)\)/, `)${selectors}`)
     : forShadowDOM
-      ? `:host(${additionalHostSelectors ?? ""}${classes}) ${withoutPseudoStates}`
-      : `${classes} ${withoutPseudoStates}`
+      ? `:host(${selectors}) ${withoutPseudoStates}`
+      : `${selectors} ${withoutPseudoStates}`
 }
 
 const extractPseudoStates = (selector: string) => {
