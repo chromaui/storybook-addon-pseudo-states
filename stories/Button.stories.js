@@ -44,7 +44,7 @@ export const All = (args) => (
 export const Default = Template.bind()
 
 export const Hover = Template.bind()
-Hover.parameters = { pseudo: { hover: true } }
+Hover.parameters = { pseudo: { hover: "button" } }
 
 export const Focus = Template.bind()
 Focus.parameters = { pseudo: { focus: true } }
