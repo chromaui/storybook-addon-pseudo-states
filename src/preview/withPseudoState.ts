@@ -25,13 +25,17 @@ export interface PseudoParameter extends PseudoStateConfig {
 const channel = addons.getChannel()
 const shadowHosts = new Set<Element>()
 
-// Drops any existing pseudo state classnames that carried over from a previously viewed story
-// before adding the new classnames. We use forEach for IE compatibility.
-const applyClasses = (element: Element, classnames: Set<string>) => {
+function cleanUpClasses(element: Element, classnames: Set<string>) {
   Object.values(PSEUDO_STATES).forEach((state) => {
     element.classList.remove(`pseudo-${state}`)
     element.classList.remove(`pseudo-${state}-all`)
   })
+}
+
+// Drops any existing pseudo state classnames that carried over from a previously viewed story
+// before adding the new classnames. We use forEach for IE compatibility.
+const applyClasses = (element: Element, classnames: Set<string>) => {
+  cleanUpClasses(element, classnames)
   classnames.forEach((classname) => element.classList.add(classname))
 }
 
@@ -46,23 +50,25 @@ function querySelectorPiercingShadowDOM(root: Element | ShadowRoot, selector: st
   return results
 }
 
-const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {}) => {
+const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {}): Map<Element, Set<string>> => {
   const map = new Map([[rootElement, new Set<PseudoState>()]])
   const add = (target: Element, state: PseudoState) =>
     map.set(target, new Set([...(map.get(target) || []), state]))
 
-  ;(Object.entries(parameter || {}) as [PseudoState, any]).forEach(([state, value]) => {
-    if (typeof value === "boolean") {
-      // default API - applying pseudo class to root element.
-      if (value) add(rootElement, `${state}-all` as PseudoState)
-    } else if (typeof value === "string") {
-      // explicit selectors API - applying pseudo class to a specific element
-      querySelectorPiercingShadowDOM(rootElement, value).forEach((el) => add(el, state))
-    } else if (Array.isArray(value)) {
-      // explicit selectors API - we have an array (of strings) recursively handle each one
-      value.forEach((sel) => querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)))
-    }
-  })
+    ; (Object.entries(parameter || {}) as [PseudoState, any]).forEach(([state, value]) => {
+      if (typeof value === "boolean") {
+        // default API - applying pseudo class to root element.
+        if (value) add(rootElement, `${state}-all` as PseudoState)
+      } else if (typeof value === "string") {
+        // explicit selectors API - applying pseudo class to a specific element
+        querySelectorPiercingShadowDOM(rootElement, value).forEach((el) => add(el, state))
+      } else if (Array.isArray(value)) {
+        // explicit selectors API - we have an array (of strings) recursively handle each one
+        value.forEach((sel) => querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)))
+      }
+    })
+
+  const cleanUpMap = new Map<Element, Set<string>>();
 
   map.forEach((states, target) => {
     const classnames = new Set<string>()
@@ -74,8 +80,11 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
         classnames.add(`pseudo-${PSEUDO_STATES[keyWithoutAll]}-all`)
       }
     })
+    cleanUpMap.set(target, classnames)
     applyClasses(target, classnames)
   })
+
+  return cleanUpMap;
 }
 
 // Traverses ancestry to collect relevant pseudo classnames, and applies them to the shadow host.
@@ -161,11 +170,17 @@ export const withPseudoState: DecoratorFunction = (
   // Then update each shadow host to redetermine its own pseudo classnames.
   useEffect(() => {
     if (!rootElement) return
+    let cleanUpMap: Map<Element, Set<string>> | undefined = undefined;
     const timeout = setTimeout(() => {
-      applyParameter(rootElement, globals || pseudoConfig(parameter))
+      cleanUpMap = applyParameter(rootElement, globals || pseudoConfig(parameter))
       shadowHosts.forEach(updateShadowHost)
     }, 0)
-    return () => clearTimeout(timeout)
+    return () => {
+      clearTimeout(timeout);
+      if (cleanUpMap) {
+        cleanUpMap.forEach((states, target) => cleanUpClasses(target, states))
+      }
+    }
   }, [rootElement, globals, parameter])
 
   return StoryFn()
