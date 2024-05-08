@@ -1,3 +1,15 @@
+# v3.1.1 (Wed May 08 2024)
+
+#### 🐛 Bug Fix
+
+- Avoid invalid CSS generation for styles using vendor pseudo-elements [#120](https://github.com/chromaui/storybook-addon-pseudo-states/pull/120) ([@m-akinc](https://github.com/m-akinc))
+
+#### Authors: 1
+
+- [@m-akinc](https://github.com/m-akinc)
+
+---
+
 # v3.1.0 (Mon May 06 2024)
 
 #### 🚀 Enhancement
