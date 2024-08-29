@@ -43,13 +43,11 @@
     "dist/**/*"
   ],
   "scripts": {
-    "start": "concurrently \"yarn storybook --quiet\" \"yarn build:dist --watch\"",
     "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "test": "vitest",
     "chromatic": "npx chromatic",
-    "build:dist": "tsup",
-    "build:storybook": "storybook build",
-    "prepublish": "yarn clean && yarn build:dist",
+    "prepublish": "tsup",
     "release": "auto shipit --base-branch=main"
   },
   "dependencies": {
