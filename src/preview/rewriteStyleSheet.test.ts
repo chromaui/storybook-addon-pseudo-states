@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest"
+
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
 import { splitSelectors } from "./splitSelectors"
 
@@ -7,17 +9,17 @@ function splitRules(cssText: string): string[] {
   const rules: string[] = []
   const chars = [...cssText]
   chars.forEach((c, i) => {
-    if (c === '{') {
+    if (c === "{") {
       depth++
-    } else if (c === '}') {
+    } else if (c === "}") {
       if (--depth === 0) {
         rules.push(cssText.substring(ruleStart!, i + 1))
         ruleStart = undefined
       }
-    } else if (ruleStart === undefined && c !== ' ' && c !== '\n') {
+    } else if (ruleStart === undefined && c !== " " && c !== "\n") {
       ruleStart = i
     }
-  });
+  })
   return rules
 }
 
@@ -27,9 +29,7 @@ abstract class Rule {
   selectorText?: string
 
   static parse(cssText: string): Rule {
-    return cssText.trim().startsWith("@")
-      ? new GroupingRule(cssText)
-      : new StyleRule(cssText)
+    return cssText.trim().startsWith("@") ? new GroupingRule(cssText) : new StyleRule(cssText)
   }
   getSelectors(): string[] {
     return this.selectorText ? splitSelectors(this.selectorText) : []
@@ -46,7 +46,7 @@ class StyleRule extends Rule {
   constructor(cssText: string) {
     super(cssText)
     if (cssText.trim().startsWith("@")) {
-      throw new Error('StyleRule cannot start with @')
+      throw new Error("StyleRule cannot start with @")
     }
     this.selectorText = cssText.substring(0, cssText.indexOf(" {"))
   }
@@ -58,7 +58,7 @@ class GroupingRule extends Rule {
   constructor(cssText: string) {
     super(cssText)
     const innerCssText = cssText.substring(cssText.indexOf("{") + 1, cssText.lastIndexOf("}"))
-    this.cssRules = splitRules(innerCssText).map(x => Rule.parse(x))
+    this.cssRules = splitRules(innerCssText).map((x) => Rule.parse(x))
   }
   deleteRule(index: number) {
     this.cssRules.splice(index, 1)
@@ -72,7 +72,7 @@ class Sheet {
   cssRules: Rule[]
 
   constructor(cssText: string) {
-    this.cssRules = splitRules(cssText).map(x => Rule.parse(x))
+    this.cssRules = splitRules(cssText).map((x) => Rule.parse(x))
   }
   deleteRule(index: number) {
     this.cssRules.splice(index, 1)
@@ -130,11 +130,11 @@ describe("rewriteStyleSheet", () => {
   it("does not add unexpected selectors", () => {
     const sheet = new Sheet("a:hover { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].getSelectors().filter(x => ![
-      "a:hover",
-      "a.pseudo-hover",
-      ".pseudo-hover-all a"
-    ].includes(x))).toEqual([])
+    expect(
+      sheet.cssRules[0]
+        .getSelectors()
+        .filter((x) => !["a:hover", "a.pseudo-hover", ".pseudo-hover-all a"].includes(x))
+    ).toEqual([])
   })
 
   it("does not add invalid selector where .pseudo-<class> would be appended to ::-webkit-* pseudo-element", () => {
@@ -314,13 +314,17 @@ describe("rewriteStyleSheet", () => {
   it('supports ":not"', () => {
     const sheet = new Sheet(":not(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover), :not(.pseudo-hover-all *)")
+    expect(sheet.cssRules[0].selectorText).toEqual(
+      ":not(:hover), :not(.pseudo-hover), :not(.pseudo-hover-all *)"
+    )
   })
 
   it('supports ":not" in shadow DOM', () => {
     const sheet = new Sheet(":not(:hover) { color: red }")
     rewriteStyleSheet(sheet as any, true)
-    expect(sheet.cssRules[0].selectorText).toEqual(":not(:hover), :not(.pseudo-hover), :not(:host(.pseudo-hover-all) *)")
+    expect(sheet.cssRules[0].selectorText).toEqual(
+      ":not(:hover), :not(.pseudo-hover), :not(:host(.pseudo-hover-all) *)"
+    )
   })
 
   it('supports complex use of ":not"', () => {
@@ -329,7 +333,9 @@ describe("rewriteStyleSheet", () => {
     const selectors = sheet.cssRules[0].getSelectors()
     expect(selectors).toContain("foo:focus:not(:hover, .bar:active) .baz")
     expect(selectors).toContain("foo.pseudo-focus:not(.pseudo-hover, .bar.pseudo-active) .baz")
-    expect(selectors).toContain(".pseudo-focus-all foo:not(.pseudo-hover-all *, .pseudo-active-all .bar) .baz")
+    expect(selectors).toContain(
+      ".pseudo-focus-all foo:not(.pseudo-hover-all *, .pseudo-active-all .bar) .baz"
+    )
   })
 
   it('supports complex use of ":not" in shadow DOM', () => {
@@ -338,7 +344,9 @@ describe("rewriteStyleSheet", () => {
     const selectors = sheet.cssRules[0].getSelectors()
     expect(selectors).toContain("foo:focus:not(:hover, .bar:active) .baz")
     expect(selectors).toContain("foo.pseudo-focus:not(.pseudo-hover, .bar.pseudo-active) .baz")
-    expect(selectors).toContain(":host(.pseudo-focus-all) foo:not(:host(.pseudo-hover-all) *, :host(.pseudo-active-all) .bar) .baz")
+    expect(selectors).toContain(
+      ":host(.pseudo-focus-all) foo:not(:host(.pseudo-hover-all) *, :host(.pseudo-active-all) .bar) .baz"
+    )
   })
 
   it('supports ":not" inside ":host"', () => {
@@ -356,13 +364,17 @@ describe("rewriteStyleSheet", () => {
     const selectors = sheet.cssRules[0].getSelectors()
     expect(selectors).toContain(":host(.foo:not(:hover)) .baz:not(:active)")
     expect(selectors).toContain(":host(.foo:not(.pseudo-hover)) .baz:not(.pseudo-active)")
-    expect(selectors).toContain(":host(.foo:not(.pseudo-hover-all)) .baz:not(:host(.pseudo-active-all) *)")
+    expect(selectors).toContain(
+      ":host(.foo:not(.pseudo-hover-all)) .baz:not(:host(.pseudo-active-all) *)"
+    )
   })
 
   it('supports ":has"', () => {
     const sheet = new Sheet(":has(:hover) { color: red }")
     rewriteStyleSheet(sheet as any)
-    expect(sheet.cssRules[0].cssText).toEqual(":has(:hover), :has(.pseudo-hover), .pseudo-hover-all :has(*) { color: red }")
+    expect(sheet.cssRules[0].cssText).toEqual(
+      ":has(:hover), :has(.pseudo-hover), .pseudo-hover-all :has(*) { color: red }"
+    )
   })
 
   it("override correct rules with media query present", () => {
@@ -424,7 +436,7 @@ describe("rewriteStyleSheet", () => {
     expect(selectors).toContain(".pseudo-hover-all test")
   })
 
-  it('handles multiple group rules', () => {
+  it("handles multiple group rules", () => {
     const sheet = new Sheet(
       `@media (max-width: 790px) {
         test:hover {
@@ -438,8 +450,12 @@ describe("rewriteStyleSheet", () => {
       }`
     )
     rewriteStyleSheet(sheet as any)
-    expect((sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()).toContain("test.pseudo-hover")
-    expect((sheet.cssRules[1] as GroupingRule).cssRules[0].getSelectors()).toContain("test2.pseudo-hover")
+    expect((sheet.cssRules[0] as GroupingRule).cssRules[0].getSelectors()).toContain(
+      "test.pseudo-hover"
+    )
+    expect((sheet.cssRules[1] as GroupingRule).cssRules[0].getSelectors()).toContain(
+      "test2.pseudo-hover"
+    )
   })
 
   it("handles nested group rules", () => {
@@ -466,7 +482,7 @@ describe("rewriteStyleSheet", () => {
   })
 
   console.warn = () => {} // suppress printing warnings about rewrite limit
-  
+
   it("can rewrite 1000 rules in a sheet", () => {
     const sheet = new Sheet(Array(1000).fill("a:hover { color: red }").join("\n"))
     rewriteStyleSheet(sheet as any)
@@ -474,18 +490,20 @@ describe("rewriteStyleSheet", () => {
       expect(sheet.cssRules[i].getSelectors()).toContain("a.pseudo-hover")
     }
   })
-  
+
   it("skips rewriting rules beyond the first 1000", () => {
     const sheet = new Sheet(Array(1001).fill("a:hover { color: red }").join("\n"))
     rewriteStyleSheet(sheet as any)
     expect(sheet.cssRules[1000].getSelectors()).not.toContain("a.pseudo-hover")
   })
-  
+
   it("can rewrite 1000 rules in a sheet with group rules", () => {
     const sheet = new Sheet(Array(1000).fill("@layer foo { a:hover { color: red } }").join("\n"))
     rewriteStyleSheet(sheet as any)
     for (let i = 0; i < 1000; i++) {
-      expect((sheet.cssRules[i] as GroupingRule).cssRules[0].getSelectors()).toContain("a.pseudo-hover")
+      expect((sheet.cssRules[i] as GroupingRule).cssRules[0].getSelectors()).toContain(
+        "a.pseudo-hover"
+      )
     }
   })
 })

@@ -1,13 +1,15 @@
+import { describe, expect, it } from "vitest"
+
 import { splitSelectors } from "./splitSelectors"
 
 describe("splitSelectors", () => {
-  test("handles basic selectors", () => {
+  it("handles basic selectors", () => {
     expect(splitSelectors(".a")).toEqual([".a"])
 
     expect(splitSelectors(".a, .b")).toEqual([".a", ".b"])
   })
 
-  test("supports ::slotted and :is", () => {
+  it("supports ::slotted and :is", () => {
     expect(splitSelectors("::slotted(:is(button, a):active)")).toEqual([
       "::slotted(:is(button, a):active)",
     ])
@@ -17,7 +19,7 @@ describe("splitSelectors", () => {
     ).toEqual(["::slotted(:is(button, a):active)", "::slotted(:is(button, a):hover)"])
   })
 
-  test("supports :host", () => {
+  it("supports :host", () => {
     expect(
       splitSelectors(
         ":host([type='secondary']) ::slotted(:is(button, a)), :host([type='primary']) ::slotted(:is(button, a):active)"
