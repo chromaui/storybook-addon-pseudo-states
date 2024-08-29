@@ -4,12 +4,15 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install dependencies
-        run: yarn
+        run: pnpm install
       - name: Publish to Chromatic
         uses: chromaui/action@latest
         with:
