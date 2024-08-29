@@ -5,6 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.AUTO_RELEASE_TOKEN_GHENGEVELD }}
@@ -17,19 +21,11 @@ jobs:
         with:
           node-version: latest
 
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: yarn-deps-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            yarn-deps-${{ hashFiles('yarn.lock') }}
-
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          yarn install --frozen-lockfile
-          yarn prepublish
-          yarn release
+          pnpm install
+          pnpm run prepublish
+          pnpm run release

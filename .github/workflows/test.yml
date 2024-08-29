@@ -4,8 +4,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/checkout@v2
       - name: Install modules
-        run: yarn
+        run: pnpm install
       - name: Run tests
-        run: yarn test
+        run: pnpm run test

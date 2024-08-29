@@ -1,6 +1,6 @@
-import { FORCE_REMOUNT } from "@storybook/core-events"
-import { useChannel, useStoryContext } from "@storybook/preview-api"
 import React from "react"
+import { FORCE_REMOUNT } from "storybook/internal/core-events"
+import { useChannel, useStoryContext } from "storybook/internal/preview-api"
 
 import { Button } from "./CSSAtRules"
 import "./grid.css"
@@ -60,7 +60,7 @@ export const DynamicStyles = {
       if (window.__dynamicRuleInjected) return
       window.__dynamicRuleInjected = true
       const sheet = Array.from(document.styleSheets).at(-1)
-      sheet.insertRule("@layer foo { .dynamic.button:hover { background-color: tomato } }")
+      sheet.insertRule("@layer foo { .dynamic.button:hover { background-color: tomato!important } }")
       emit(FORCE_REMOUNT, { storyId })
     }, 100)
     return <All className="dynamic" />

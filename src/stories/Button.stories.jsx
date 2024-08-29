@@ -1,6 +1,6 @@
-import { FORCE_REMOUNT } from "@storybook/core-events"
-import { useChannel, useStoryContext } from "@storybook/preview-api"
 import React from "react"
+import { FORCE_REMOUNT } from "storybook/internal/core-events"
+import { useChannel, useStoryContext } from "storybook/internal/preview-api"
 
 import { Button } from "./Button"
 import "./grid.css"

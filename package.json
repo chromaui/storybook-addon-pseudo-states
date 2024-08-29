@@ -22,19 +22,19 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./manager": {
       "types": "./dist/manager.d.ts",
-      "require": "./dist/manager.js",
-      "import": "./dist/manager.mjs"
+      "import": "./dist/manager.mjs",
+      "require": "./dist/manager.js"
     },
     "./preview": {
       "types": "./dist/preview.d.ts",
-      "require": "./dist/preview.js",
-      "import": "./dist/preview.mjs"
+      "import": "./dist/preview.mjs",
+      "require": "./dist/preview.js"
     },
     "./package.json": "./package.json"
   },
@@ -43,43 +43,34 @@
     "dist/**/*"
   ],
   "scripts": {
-    "clean": "rimraf ./dist",
-    "start": "concurrently \"yarn storybook --quiet\" \"yarn build:dist --watch\"",
     "storybook": "storybook dev -p 6006",
-    "test": "jest src",
+    "build-storybook": "storybook build",
+    "test": "vitest",
     "chromatic": "npx chromatic",
-    "build:dist": "tsup",
-    "build:storybook": "storybook build",
-    "prepublish": "yarn clean && yarn build:dist",
+    "prepublish": "tsup",
     "release": "auto shipit --base-branch=main"
   },
+  "dependencies": {
+    "@storybook/icons": "^1.2.10"
+  },
   "devDependencies": {
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-typescript": "^7.23.3",
-    "@chromatic-com/storybook": "^1.2.1",
-    "@storybook/addon-essentials": "^8.0.0",
-    "@storybook/addon-interactions": "^8.0.0",
-    "@storybook/addon-links": "^8.0.0",
-    "@storybook/addon-webpack5-compiler-swc": "^1.0.0",
-    "@storybook/components": "^8.0.0",
-    "@storybook/core-events": "^8.0.0",
-    "@storybook/icons": "^1.2.9",
-    "@storybook/manager-api": "^8.0.0",
-    "@storybook/preview-api": "^8.0.0",
-    "@storybook/theming": "^8.0.0",
-    "@storybook/react-webpack5": "^8.0.0",
-    "@storybook/types": "^8.0.0",
-    "@types/jest": "^29.2.4",
+    "@chromatic-com/storybook": "^1.7.0",
+    "@storybook/react": "^8.2.9",
+    "@storybook/react-vite": "^8.2.9",
     "@types/node": "^18.19.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "auto": "^11.1.1",
     "concurrently": "^5.3.0",
-    "jest": "^27.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "rimraf": "^3.0.2",
-    "storybook": "^8.0.0",
+    "storybook": "^8.2.9",
     "tsup": "^8.0.1",
-    "typescript": "^4.9.4"
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  },
+  "peerDependencies": {
+    "storybook": "^8.2.0"
   },
   "bundler": {
     "exportEntries": [
