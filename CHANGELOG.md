@@ -1,3 +1,15 @@
+# v4.0.0 (Thu Aug 29 2024)
+
+#### 💥 Breaking Change
+
+- Upgrade to Storybook 8.2 and general cleanup [#124](https://github.com/chromaui/storybook-addon-pseudo-states/pull/124) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v3.1.1 (Wed May 08 2024)
 
 #### 🐛 Bug Fix
