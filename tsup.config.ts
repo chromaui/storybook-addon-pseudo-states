@@ -1,20 +1,20 @@
-import { defineConfig, type Options } from "tsup";
-import { readFile } from "fs/promises";
-import { globalPackages as globalManagerPackages } from "@storybook/manager/globals";
-import { globalPackages as globalPreviewPackages } from "@storybook/preview/globals";
+import { defineConfig, type Options } from "tsup"
+import { readFile } from "fs/promises"
+import { globalPackages as globalManagerPackages } from "storybook/internal/manager/globals"
+import { globalPackages as globalPreviewPackages } from "storybook/internal/preview/globals"
 
 // The current browsers supported by Storybook v7
-const BROWSER_TARGET: Options['target'] = ["chrome100", "safari15", "firefox91"];
-const NODE_TARGET: Options['target'] = ["node18"];
+const BROWSER_TARGET: Options["target"] = ["chrome100", "safari15", "firefox91"]
+const NODE_TARGET: Options["target"] = ["node18"]
 
 type BundlerConfig = {
   bundler?: {
-    exportEntries?: string[];
-    nodeEntries?: string[];
-    managerEntries?: string[];
-    previewEntries?: string[];
-  };
-};
+    exportEntries?: string[]
+    nodeEntries?: string[]
+    managerEntries?: string[]
+    previewEntries?: string[]
+  }
+}
 
 export default defineConfig(async (options) => {
   // reading the three types of entries from package.json, which has the following structure:
@@ -27,7 +27,7 @@ export default defineConfig(async (options) => {
   //     "nodeEntries": ["./src/preset.ts"]
   //   }
   // }
-  const packageJson = await readFile('./package.json', 'utf8').then(JSON.parse) as BundlerConfig;
+  const packageJson = (await readFile("./package.json", "utf8").then(JSON.parse)) as BundlerConfig
   const {
     bundler: {
       exportEntries = [],
@@ -35,17 +35,17 @@ export default defineConfig(async (options) => {
       previewEntries = [],
       nodeEntries = [],
     } = {},
-  } = packageJson;
+  } = packageJson
 
   const commonConfig: Options = {
     splitting: false,
     minify: !options.watch,
     treeshake: true,
-    sourcemap: true,
+    sourcemap: false,
     clean: true,
-  };
+  }
 
-  const configs: Options[] = [];
+  const configs: Options[] = []
 
   // export entries are entries meant to be manually imported by the user
   // they are not meant to be loaded by the manager or preview
@@ -61,7 +61,7 @@ export default defineConfig(async (options) => {
       target: [...BROWSER_TARGET, ...NODE_TARGET],
       platform: "neutral",
       external: [...globalManagerPackages, ...globalPreviewPackages],
-    });
+    })
   }
 
   // manager entries are entries meant to be loaded into the manager UI
@@ -75,7 +75,7 @@ export default defineConfig(async (options) => {
       target: BROWSER_TARGET,
       platform: "browser",
       external: globalManagerPackages,
-    });
+    })
   }
 
   // preview entries are entries meant to be loaded into the preview iframe
@@ -92,7 +92,7 @@ export default defineConfig(async (options) => {
       target: BROWSER_TARGET,
       platform: "browser",
       external: globalPreviewPackages,
-    });
+    })
   }
 
   // node entries are entries meant to be used in node-only
@@ -105,8 +105,8 @@ export default defineConfig(async (options) => {
       format: ["cjs"],
       target: NODE_TARGET,
       platform: "node",
-    });
+    })
   }
 
-  return configs;
-});
+  return configs
+})

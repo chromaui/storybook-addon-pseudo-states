@@ -1,8 +1,8 @@
-import React, { useCallback } from "react"
-import { IconButton, WithTooltip, TooltipLinkList } from "@storybook/components"
 import { CheckIcon, ButtonIcon } from "@storybook/icons"
-import { useGlobals } from "@storybook/manager-api"
-import { styled, color } from "@storybook/theming"
+import React, { useCallback } from "react"
+import { IconButton, WithTooltip, TooltipLinkList } from "storybook/internal/components"
+import { useGlobals } from "storybook/internal/manager-api"
+import { styled, color } from "storybook/internal/theming"
 
 import { PARAM_KEY, PSEUDO_STATES } from "../constants"
 

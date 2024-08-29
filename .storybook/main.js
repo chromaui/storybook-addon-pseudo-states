@@ -1,15 +1,15 @@
 module.exports = {
-  stories: ["../stories/**/*.mdx", "../stories/**/*.stories.@(js|jsx|ts|tsx)"],
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
-    "../",
     "@chromatic-com/storybook",
-    "@storybook/addon-webpack5-compiler-swc",
   ],
+  managerEntries: [__dirname + "/../src/manager.ts"],
+  previewAnnotations: [__dirname + "/../src/preview.ts"],
   framework: {
-    name: "@storybook/react-webpack5",
+    name: "@storybook/react-vite",
     options: {},
   },
   docs: {

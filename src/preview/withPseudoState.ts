@@ -7,9 +7,9 @@ import {
   STORY_CHANGED,
   STORY_RENDERED,
   UPDATE_GLOBALS,
-} from "@storybook/core-events"
-import { DecoratorFunction } from "@storybook/types"
-import { addons, useEffect, useMemo } from "@storybook/preview-api"
+} from "storybook/internal/core-events"
+import { DecoratorFunction } from "storybook/internal/types"
+import { addons, useEffect, useMemo } from "storybook/internal/preview-api"
 
 import { PSEUDO_STATES, PseudoState } from "../constants"
 import { rewriteStyleSheet } from "./rewriteStyleSheet"
@@ -36,8 +36,8 @@ const applyClasses = (element: Element, classnames: Set<string>) => {
 }
 
 function querySelectorPiercingShadowDOM(root: Element | ShadowRoot, selector: string) {
-  const results: Element[] = [];
-  root.querySelectorAll('*').forEach((el) => {
+  const results: Element[] = []
+  root.querySelectorAll("*").forEach((el) => {
     if (el.shadowRoot) {
       results.push(...querySelectorPiercingShadowDOM(el.shadowRoot, selector))
     }
@@ -60,7 +60,9 @@ const applyParameter = (rootElement: Element, parameter: PseudoStateConfig = {})
       querySelectorPiercingShadowDOM(rootElement, value).forEach((el) => add(el, state))
     } else if (Array.isArray(value)) {
       // explicit selectors API - we have an array (of strings) recursively handle each one
-      value.forEach((sel) => querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)))
+      value.forEach((sel) =>
+        querySelectorPiercingShadowDOM(rootElement, sel).forEach((el) => add(el, state)),
+      )
     }
   })
 
@@ -89,7 +91,7 @@ const updateShadowHost = (shadowHost: Element) => {
     .filter((classname) => classname.match(/^pseudo-(.(?!-all))+$/))
     .forEach((classname) => classnames.add(classname))
   // Adopt "pseudo-*-all" classes from ancestors (across shadow boundaries)
-  for (let node = shadowHost.parentNode; node;) {
+  for (let node = shadowHost.parentNode; node; ) {
     if (node instanceof ShadowRoot) {
       node = node.host
       continue
@@ -121,13 +123,13 @@ const equals = (a: PseudoStateConfig = {}, b: PseudoStateConfig = {}) =>
   b !== null &&
   Object.keys(a).length === Object.keys(b).length &&
   (Object.keys(a) as PseudoState[]).every(
-    (key) => JSON.stringify(a[key]) === JSON.stringify(b[key])
+    (key) => JSON.stringify(a[key]) === JSON.stringify(b[key]),
   )
 
 // Global decorator that rewrites stylesheets and applies classnames to render pseudo styles
 export const withPseudoState: DecoratorFunction = (
   StoryFn,
-  { viewMode, parameters, id, globals: globalsArgs }
+  { viewMode, parameters, id, globals: globalsArgs },
 ) => {
   const { pseudo: parameter } = parameters
   const { pseudo: globals } = globalsArgs
