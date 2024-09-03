@@ -71,7 +71,7 @@ export default defineConfig(async (options) => {
     configs.push({
       ...commonConfig,
       entry: managerEntries,
-      format: ["esm"],
+      format: ["esm", "cjs"],
       target: BROWSER_TARGET,
       platform: "browser",
       external: globalManagerPackages,

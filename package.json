@@ -27,7 +27,6 @@
       "require": "./dist/index.js"
     },
     "./manager": {
-      "types": "./dist/manager.d.ts",
       "import": "./dist/manager.mjs",
       "require": "./dist/manager.js"
     },
@@ -39,7 +38,6 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "*.js",
     "dist/**/*"
   ],
   "scripts": {
