@@ -1,3 +1,15 @@
+# v4.0.1 (Tue Sep 03 2024)
+
+#### 🐛 Bug Fix
+
+- Fix CJS entrypoint for manager code, and drop some unused things [#126](https://github.com/chromaui/storybook-addon-pseudo-states/pull/126) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v4.0.0 (Thu Aug 29 2024)
 
 #### 💥 Breaking Change
