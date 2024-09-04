@@ -38,6 +38,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "*.js",
     "dist/**/*"
   ],
   "scripts": {
