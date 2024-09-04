@@ -1,3 +1,15 @@
+# v4.0.2 (Wed Sep 04 2024)
+
+#### 🐛 Bug Fix
+
+- Restore entrypoint files at the root [#127](https://github.com/chromaui/storybook-addon-pseudo-states/pull/127) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 1
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+
+---
+
 # v4.0.1 (Tue Sep 03 2024)
 
 #### 🐛 Bug Fix
