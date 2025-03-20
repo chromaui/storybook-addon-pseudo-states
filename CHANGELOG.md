@@ -1,3 +1,17 @@
+# v4.0.3 (Thu Mar 20 2025)
+
+#### 🐛 Bug Fix
+
+- Do not replace :is() with :is(*) [#136](https://github.com/chromaui/storybook-addon-pseudo-states/pull/136) ([@TheMightyPenguin](https://github.com/TheMightyPenguin))
+- Update release workflow config to use `GH_TOKEN` [#128](https://github.com/chromaui/storybook-addon-pseudo-states/pull/128) ([@ghengeveld](https://github.com/ghengeveld))
+
+#### Authors: 2
+
+- Gert Hengeveld ([@ghengeveld](https://github.com/ghengeveld))
+- Victor Tortolero ([@TheMightyPenguin](https://github.com/TheMightyPenguin))
+
+---
+
 # v4.0.2 (Wed Sep 04 2024)
 
 #### 🐛 Bug Fix
