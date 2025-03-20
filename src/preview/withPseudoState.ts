@@ -175,11 +175,21 @@ export const withPseudoState: DecoratorFunction = (
 
 // Rewrite CSS rules for pseudo-states on all stylesheets to add an alternative selector
 const rewriteStyleSheets = (shadowRoot?: ShadowRoot) => {
-  let styleSheets = Array.from(shadowRoot ? shadowRoot.styleSheets : document.styleSheets)
-  if (shadowRoot?.adoptedStyleSheets?.length) styleSheets = shadowRoot.adoptedStyleSheets
-  styleSheets.forEach((sheet) => rewriteStyleSheet(sheet, !!shadowRoot))
-  if (shadowRoot && shadowHosts) shadowHosts.add(shadowRoot.host)
-}
+  const isShadow = !!shadowRoot;
+  let styleSheets: CSSStyleSheet[] = isShadow
+    ? [...(shadowRoot?.styleSheets || [])]
+    : [...document.styleSheets];
+
+  // Merge adopted styles from both the shadowRoot (if exists) and document
+  const adoptedSheets: CSSStyleSheet[] = [
+    ...(shadowRoot?.adoptedStyleSheets || []),
+    ...document.adoptedStyleSheets,
+  ];
+
+  const uniqueStyleSheets = new Set([...styleSheets, ...adoptedSheets]);
+
+  uniqueStyleSheets.forEach((sheet) => rewriteStyleSheet(sheet, isShadow));
+};
 
 // Only track shadow hosts for the current story
 channel.on(STORY_CHANGED, () => shadowHosts.clear())
