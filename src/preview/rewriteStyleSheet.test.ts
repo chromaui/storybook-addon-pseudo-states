@@ -177,6 +177,12 @@ describe("rewriteStyleSheet", () => {
     expect(sheet.cssRules[0].getSelectors()).toContain("custom-elt.pseudo-hover::part(foo bar)")
   })
 
+  it("does not replace :is() with :is(*)", () => {
+    const sheet = new Sheet(":is():hover { color: red }")
+    rewriteStyleSheet(sheet as any)
+    expect(sheet.cssRules[0].getSelectors()).toContain(".pseudo-hover-all :is()")
+  })
+
   it("adds alternative selector for each pseudo selector", () => {
     const sheet = new Sheet("a:hover, a:focus { color: red }")
     rewriteStyleSheet(sheet as any)
